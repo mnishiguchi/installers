@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+echo "==> Installing Input Remapper"
+
+# https://github.com/sezanzeb/input-remapper
+sudo apt install git python3-setuptools gettext
+git clone https://github.com/sezanzeb/input-remapper.git
+cd input-remapper && ./scripts/build.sh
+sudo apt install ./dist/input-remapper-1.5.0.deb

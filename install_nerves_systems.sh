@@ -1,0 +1,84 @@
+#!/bin/sh
+set -e
+
+echo "==> Installing Nerves archives"
+
+# https://hexdocs.pm/nerves/installation.html
+sudo apt install \
+  autoconf \
+  automake \
+  build-essential \
+  curl \
+  git \
+  pkg-config \
+  squashfs-tools \
+  ssh-askpass \
+  -y
+
+# It is important to update the versions of hex and rebar used by Elixir, even
+# if you already had Elixir installed.
+mix local.hex --force
+mix local.rebar --force
+
+mix archive.install hex nerves --force
+mix archive.install hex nerves_bootstrap --force
+
+echo "==> Checking Github access"
+
+# Exit code is expected to be 1 according to the Github documentation
+# https://docs.github.com/en/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection
+exit_code=0
+ssh -T git@github.com || exit_code=$? || true
+
+if [ "$exit_code" -lt 2 ]; then
+  echo "ok: $exit_code"
+else
+  echo "Please add the SSH public key to your GitHub profile's SSH key list at https://github.com/settings/keys"
+  echo "error: $exit_code"
+  exit "$exit_code"
+fi
+
+echo "==> Installing Nerves Systems"
+
+# https://github.com/nerves-project/nerves_systems
+sudo apt install \
+  autoconf \
+  automake \
+  bc \
+  build-essential \
+  cmake \
+  curl \
+  cvs \
+  gawk \
+  git \
+  jq \
+  libncurses5-dev \
+  libssl-dev \
+  mercurial \
+  python3 \
+  python3-aiohttp \
+  python3-flake8 \
+  python3-ijson \
+  python3-nose2 \
+  python3-pexpect \
+  python3-pip \
+  python3-requests \
+  rsync \
+  squashfs-tools \
+  subversion \
+  unzip \
+  wget \
+  -y
+
+(
+  if [ -d "$HOME/nerves_systems" ]; then
+    echo "nerves_systems already exists"
+  else
+    cd "$HOME"
+    git clone https://github.com/nerves-project/nerves_systems
+  fi
+
+  cd "$HOME/nerves_systems"
+  cp starter-config.exs config.exs
+  ./clone-all
+)
