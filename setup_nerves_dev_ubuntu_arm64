@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 #
@@ -15,21 +15,22 @@ main() {
 
   echo "current dir: $(pwd)"
   echo "script path: $SCRIPT_PATH"
+  echo
 
   # get the latest package lists
   sudo apt update
 
   (
     cd "$SCRIPT_PATH"
-    sh ./ubuntu/install_xubuntu_desktop.sh
-    sh ./ubuntu/install_firefox.sh
-    sh ./ubuntu_arm64/install_vs_code.sh
-    sh ./ubuntu/install_zsh.sh
-    sh ./ubuntu/chsh_zsh.sh
-    sh ./ubuntu/install_ohmyzsh.sh
-    sh ./install_asdf_zsh.sh
-    sh ./install_erlang_and_elixir.sh
-    sh ./install_nerves_systems.sh
+    ./ubuntu/install_xubuntu_desktop
+    ./ubuntu/install_firefox
+    ./ubuntu_arm64/install_vs_code
+    ./ubuntu/install_zsh
+    ./ubuntu/chsh_zsh
+    ./ubuntu/install_ohmyzsh
+    ./install_asdf_zsh
+    ./install_erlang_and_elixir
+    ./install_nerves_systems
   )
 
   echo "Done"
