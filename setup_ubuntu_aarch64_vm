@@ -1,11 +1,6 @@
 #!/bin/bash
 set -e
 
-#
-# This is a post-install script for setting up the Nerves firmware development
-# environment on Ubuntu ARM 64-bit machines.
-#
-
 main() {
   # https://stackoverflow.com/a/246128/3837223
   SCRIPT_PATH="$(
@@ -24,11 +19,8 @@ main() {
     cd "$SCRIPT_PATH"
     ./ubuntu/install_xubuntu_desktop
     ./ubuntu/install_firefox
-    ./ubuntu_arm64/install_vs_code
-    ./ubuntu/install_zsh
-    ./ubuntu/chsh_zsh
-    ./ubuntu/install_ohmyzsh
-    ./install_asdf_zsh
+    ./ubuntu/install_vs_code_aarch64
+    ./install_asdf_bash
     ./install_erlang_and_elixir
     ./install_nerves_systems
   )
