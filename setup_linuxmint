@@ -54,7 +54,7 @@ done
 asdf list
 
 echo '===> Install FiraCodeNerdFont'
-if [[ -n "$(fc-list | grep FiraCodeNerdFont)" ]]; then
+if fc-list | grep -q FiraCodeNerdFont; then
   echo "already installed"
 else
   PATCHED_FONTS_BASE_URL="https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts"
