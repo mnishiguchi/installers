@@ -1,0 +1,95 @@
+#!/bin/bash
+
+echo '===> Install packages with pacman'
+# upgrade packages
+sudo pacman -Syu
+
+# https://archlinux.org/packages
+sudo pacman -S --noconfirm \
+  curl \
+  direnv \
+  docker \
+  firefox \
+  flameshot \
+  fzf \
+  gimp \
+  git \
+  git-delta \
+  htop \
+  neofetch \
+  neovim \
+  pipewire \
+  ranger \
+  ripgrep \
+  rofi \
+  shfmt \
+  tmux \
+  wget \
+  xclip \
+  xsel \
+  vim \
+  virt-manager \
+  vlc \
+  xreader \
+  zsh
+
+echo '===> Set up zsh'
+# https://github.com/ohmyzsh/ohmyzsh/wiki/Installing-ZSH#install-and-set-up-zsh-as-default
+chsh -s "$(which zsh)"
+
+# https://ohmyz.sh/#install
+# https://github.com/ohmyzsh/ohmyzsh/tree/master#unattended-install
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+echo '===> Install Japanese input method'
+
+sudo pacman -S --noconfirm fcitx5-im fcitx5-mozc
+
+echo '===> Set up asdf'
+
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.12.0
+asdf update
+
+plugins=(
+  erlang
+  elixir
+  nodejs
+)
+
+for plugin in "${plugins[@]}"; do
+  asdf plugin add "$plugin"
+  asdf install "$plugin" latest
+  asdf global "$plugin" latest
+done
+
+asdf list
+
+echo '===> Install FiraCodeNerdFont'
+if fc-list | grep -q FiraCodeNerdFont; then
+  echo "already installed"
+else
+  PATCHED_FONTS_BASE_URL="https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts"
+  FONT_URL="$PATCHED_FONTS_BASE_URL/FiraCode/Regular/FiraCodeNerdFont-Regular.ttf"
+  FONT_DIR="$HOME/.local/share/fonts"
+  mkdir -p "$FONT_DIR"
+  cd "$FONT_DIR" && curl -fLO "$FONT_URL"
+  fc-list | grep Nerd
+fi
+
+echo '===> Install greenclip'
+if command -v greenclip &>/dev/null; then
+  echo "already installed"
+else
+  LOCAL_BIN_DIR="$HOME/.local/bin"
+  mkdir -p "$LOCAL_BIN_DIR"
+  wget https://github.com/erebe/greenclip/releases/download/v4.2/greenclip -P "$LOCAL_BIN_DIR"
+  chmod +x "$LOCAL_BIN_DIR/greenclip"
+fi
+
+echo '===> Install Jetpack.vim'
+
+if [[ ! -d "$HOME/.vim/pack/jetpack" ]]; then
+  curl -fLo ~/.vim/pack/jetpack/opt/vim-jetpack/plugin/jetpack.vim --create-dirs https://raw.githubusercontent.com/tani/vim-jetpack/master/plugin/jetpack.vim
+else
+  echo 'already installed'
+fi
