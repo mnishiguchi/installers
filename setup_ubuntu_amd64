@@ -18,9 +18,9 @@ main() {
   (
     cd "$SCRIPT_PATH"
     ./ubuntu/install_vs_code_flatpak
-    ./install_asdf_bash
-    ./install_erlang_and_elixir
-    ./install_nerves_systems
+    ./ubuntu/install_asdf_bash
+    ./ubuntu/install_erlang_and_elixir
+    ./ubuntu/install_nerves_systems
   )
 
   echo "Done"
