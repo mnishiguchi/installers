@@ -167,7 +167,15 @@ echo '===> Install asdf'
 if [[ -d "$ASDF_DIR" ]]; then
   echo "warning: asdf is already installed -- skipping"
 else
-  sudo pacman -S --needed --noconfirm unzip
+  # https://github.com/asdf-vm/asdf-erlang
+  sudo pacman -S --needed --noconfirm \
+    base-devel \
+    ncurses \
+    unzip \
+    glu mesa wxwidgets-gtk3 libpng \
+    libssh \
+    unixodbc \
+    libxslt fop
 
   ASDF_DIR="$HOME/.asdf"
 
