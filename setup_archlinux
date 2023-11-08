@@ -1,46 +1,13 @@
-#
-# My post installation script for archlinux
-#
+#!/bin/bash
+set -e
 
 echo '===> Fetch the latest package info and upgrade all the packages'
 
-sudo pacman -Syu
-
-echo '===> Install basic tools'
-
-# https://kskroyal.com/10-things-to-do-after-installing-arch-linux-2023/
-sudo pacman -S --needed --noconfirm \
-  p7zip \
-  unrar \
-  tar \
-  rsync \
-  git \
-  neofetch \
-  htop \
-  exfat-utils \
-  fuse-exfat \
-  ntfs-3g \
-  flac \
-  jasper \
-  aria2
-
-# other tools I want to install
-sudo pacman -S --needed --noconfirm \
-  code \
-  direnv \
-  fzf \
-  git-delta \
-  man-db \
-  neovim \
-  net-tools \
-  ripgrep \
-  rofi \
-  shfmt \
-  speech-dispatcher \
-  tmux
+sudo pacman -Syu --noconfirm
 
 echo '===> Install microcode updates tools'
 
+# https://wiki.archlinux.org/title/microcode
 sudo pacman -S --needed --noconfirm intel-ucode
 
 echo '===> Install additional package managers'
@@ -48,55 +15,78 @@ echo '===> Install additional package managers'
 # https://docs.flatpak.org
 sudo pacman -S --needed --noconfirm flatpak
 
-# https://github.com/Jguer/yay#installation
-YAY_BIN_DIR="$HOME/Downloads/yay"
+# https://asdf-vm.com
+./shared/install_asdf.sh
 
-if [[ -d "$YAY_BIN_DIR" ]]; then
+# https://github.com/Jguer/yay#installation
+YAY_SRC_DIR="$HOME/Downloads/yay"
+
+if [[ -d "$YAY_SRC_DIR" ]]; then
   echo "warning: yay is already installed -- skipping"
 else
   sudo pacman -S --needed --noconfirm base-devel git
 
-  git clone https://aur.archlinux.org/yay-bin.git "$YAY_BIN_DIR" &&
-    cd "$YAY_BIN_DIR" && makepkg -si
+  git clone https://aur.archlinux.org/yay-bin.git "$YAY_SRC_DIR" &&
+    cd "$YAY_SRC_DIR" && makepkg -si
 fi
+
+echo '===> Install basic tools'
+
+# other tools I want to install
+sudo pacman -S --needed --noconfirm \
+  code \
+  diff-so-fancy \
+  direnv \
+  fzf \
+  git \
+  git-delta \
+  github-cli \
+  htop \
+  lazygit \
+  man-db \
+  ncdu \
+  neofetch \
+  neovim \
+  net-tools \
+  ranger \
+  ripgrep \
+  rofi \
+  rsync \
+  shfmt \
+  speech-dispatcher \
+  tmux \
+  trash-cli \
+  xclip \
+  xdotool \
+  xsel
+
+yay -S --needed --noconfirm \
+  git-open
 
 echo '===> Install basic GUI apps'
 
 sudo pacman -S --needed --noconfirm \
+  chromium \
+  discord \
   evince \
   fbreader \
+  firefox \
   flameshot \
   gimp \
   gnome-calculator \
   gnome-screenshot \
-  kdenlive \
   krita \
-  libreoffice-fresh \
-  transmission-qt \
+  loupe \
+  transmission-gtk \
+  virt-manager \
   vlc
 
-flatpak install -y --noninteractive flathub org.kde.pix
-
-# https://wiki.archlinux.org/title/Nemo
 yay -S --needed --noconfirm \
-  nemo-fileroller
-
-yay -S --needed --noconfirm \
+  1password \
   freetube-bin \
+  slack-desktop \
   webapp-manager \
   ytmdesktop-git
-
-echo '===> Install web browsers'
-
-sudo pacman -S --needed --noconfirm \
-  chromium \
-  firefox
-
-echo '===> Install additional kernels'
-
-sudo pacman -S --needed --noconfirm \
-  linux-lts \
-  linux-lts-headers
 
 echo '===> Install backup tools'
 
@@ -109,13 +99,6 @@ echo '===> Install firewall'
 
 sudo pacman -S --needed --noconfirm ufw
 
-echo '===> Install clipboard programs'
-
-sudo pacman -S --needed --noconfirm \
-  copyq \
-  xclip \
-  xsel
-
 echo '===> Install docker'
 
 # https://wiki.archlinux.org/title/docker
@@ -123,31 +106,19 @@ sudo pacman -S --needed --noconfirm \
   docker \
   docker-compose
 
-sudo systemctl enable docker.service
-systemctl status docker.service --no-pager
-
 echo '===> Install virtualbox'
 
-# virtualbox for the "linux" kernel
+# virtualbox for kernels other than the "linux" kernel
 # https://wiki.archlinux.org/title/VirtualBox
 sudo pacman -S --needed --noconfirm \
   virtualbox \
-  virtualbox-host-modules-arch
+  virtualbox-host-dkms
 
 echo '===> Install ohmyzsh'
 
-if [[ -d "$ZSH" ]]; then
-  echo "warning: ohmyzsh is already installed -- skipping"
-else
-  sudo pacman -S --needed --noconfirm zsh
+sudo pacman -S --needed --noconfirm zsh
 
-  # https://github.com/ohmyzsh/ohmyzsh/wiki/Installing-ZSH#install-and-set-up-zsh-as-default
-  chsh -s "$(which zsh)"
-
-  # https://ohmyz.sh/#install
-  # https://github.com/ohmyzsh/ohmyzsh/tree/master#unattended-install
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-fi
+./shared/install_ohmyzsh.sh
 
 echo '===> Install Japanese input method'
 
@@ -155,80 +126,50 @@ sudo pacman -S --needed --noconfirm \
   fcitx5-im \
   fcitx5-mozc
 
-echo '===> Install Japanese fonts'
+echo '===> Install fonts'
 
 # https://wiki.archlinux.org/title/Localization/Japanese
 sudo pacman -S --needed --noconfirm \
+  noto-fonts \
   noto-fonts-cjk \
-  otf-ipaexfont
-
-echo '===> Install asdf'
-
-if [[ -d "$ASDF_DIR" ]]; then
-  echo "warning: asdf is already installed -- skipping"
-else
-  # https://github.com/asdf-vm/asdf-erlang
-  sudo pacman -S --needed --noconfirm \
-    base-devel \
-    ncurses \
-    unzip \
-    glu mesa wxwidgets-gtk3 libpng \
-    libssh \
-    unixodbc \
-    libxslt fop
-
-  ASDF_DIR="$HOME/.asdf"
-
-  git clone https://github.com/asdf-vm/asdf.git "$ASDF_DIR" --branch v0.13.0
-
-  plugins=(
-    erlang
-    elixir
-    nodejs
-  )
-
-  for plugin in "${plugins[@]}"; do
-    asdf plugin add "$plugin"
-    asdf install "$plugin" latest
-    asdf global "$plugin" latest
-  done
-fi
-
-asdf update
-asdf list
-
-echo '===> Install FiraCodeNerdFont'
-
-if fc-list | grep -q FiraCodeNerdFont; then
-  echo "warning: already installed -- skipping"
-else
-  FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip"
-  OUTPUT_DIR="$HOME/.local/share/fonts/firacode-nerd"
-
-  if mkdir -p "$OUTPUT_DIR" && cd "$OUTPUT_DIR" &>/dev/null; then
-    curl --fail --location "$FONT_URL" --output tmp.zip
-    unzip tmp.zip
-    rm -f tmp.zip
-  else
-    echo "warning: could not install"
-  fi
-fi
+  noto-fonts-emoji \
+  noto-fonts-extra \
+  otf-ipaexfont \
+  otf-ipafont \
+  ttf-firacode-nerd
 
 echo '===> Install greenclip'
 
-if command -v greenclip &>/dev/null; then
-  echo "warning: already installed -- skipping"
-else
-  LOCAL_BIN_DIR="$HOME/.local/bin"
-  mkdir -p "$LOCAL_BIN_DIR"
-  wget https://github.com/erebe/greenclip/releases/download/v4.2/greenclip -P "$LOCAL_BIN_DIR"
-  chmod +x "$LOCAL_BIN_DIR/greenclip"
-fi
+./shared/install_greenclip.sh
 
-echo '===> Install Jetpack.vim'
+echo '===> Install jetpack'
 
-if [[ ! -d "$HOME/.vim/pack/jetpack" ]]; then
-  curl -fLo ~/.vim/pack/jetpack/opt/vim-jetpack/plugin/jetpack.vim --create-dirs https://raw.githubusercontent.com/tani/vim-jetpack/master/plugin/jetpack.vim
-else
-  echo "warning: already installed -- skipping"
-fi
+./shared/install_jetpack.sh
+
+echo '===> Install asdf plugins'
+
+# https://github.com/asdf-vm/asdf-erlang
+sudo pacman -S --needed --noconfirm \
+  base-devel \
+  ncurses \
+  glu mesa wxwidgets-gtk3 libpng \
+  libssh \
+  unixodbc \
+  libxslt fop
+
+# https://github.com/asdf-vm/asdf-elixir
+sudo pacman -S --needed --noconfirm unzip
+
+plugins=(
+  erlang
+  elixir
+  nodejs
+)
+
+for plugin in "${plugins[@]}"; do
+  asdf plugin add "$plugin"
+  asdf install "$plugin" latest
+  asdf global "$plugin" latest
+done
+
+asdf list
