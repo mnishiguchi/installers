@@ -65,26 +65,33 @@ yay -S --needed --noconfirm \
 
 echo '===> Install basic GUI apps'
 
+flathub_packages=(
+  com.brave.Browser
+  com.discordapp.Discord
+  com.slack.Slack
+  com.transmissionbt.Transmission
+  com.uploadedlobster.peek
+  org.flameshot.Flameshot
+  org.gimp.GIMP
+  org.gnome.Calculator
+  org.gnome.Evince
+  org.gnome.Loupe
+  org.kde.arianna
+  org.libreoffice.LibreOffice
+  org.videolan.VLC
+)
+
+for pkg in "${flathub_packages[@]}"; do
+  flatpak install -y --noninteractive flathub "$pkg"
+done
+
 sudo pacman -S --needed --noconfirm \
-  chromium \
-  discord \
-  evince \
-  fbreader \
-  firefox \
-  flameshot \
-  gimp \
-  gnome-calculator \
   gnome-screenshot \
-  krita \
-  loupe \
-  transmission-gtk \
-  virt-manager \
-  vlc
+  virt-manager
 
 yay -S --needed --noconfirm \
   1password \
   freetube-bin \
-  slack-desktop \
   webapp-manager \
   ytmdesktop-git
 
@@ -160,13 +167,13 @@ sudo pacman -S --needed --noconfirm \
 # https://github.com/asdf-vm/asdf-elixir
 sudo pacman -S --needed --noconfirm unzip
 
-plugins=(
+asdf_plugins=(
   erlang
   elixir
   nodejs
 )
 
-for plugin in "${plugins[@]}"; do
+for plugin in "${asdf_plugins[@]}"; do
   asdf plugin add "$plugin"
   asdf install "$plugin" latest
   asdf global "$plugin" latest
