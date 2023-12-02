@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eu
 
 echo '===> Fetch the latest package info and upgrade all the packages'
 
@@ -10,7 +10,7 @@ echo '===> Install microcode updates tools'
 # https://wiki.archlinux.org/title/microcode
 sudo pacman -S --needed --noconfirm intel-ucode
 
-echo '===> Install additional package managers'
+echo '===> Install package managers'
 
 # https://docs.flatpak.org
 sudo pacman -S --needed --noconfirm flatpak
@@ -30,17 +30,20 @@ else
     cd "$YAY_SRC_DIR" && makepkg -si
 fi
 
-echo '===> Install basic tools'
+echo '===> Install must-have tools'
 
-# other tools I want to install
 sudo pacman -S --needed --noconfirm \
   code \
   diff-so-fancy \
   direnv \
+  docker \
+  docker-compose \
   fzf \
   git \
   git-delta \
   github-cli \
+  gnome-screenshot \
+  grsync \
   htop \
   lazygit \
   man-db \
@@ -53,20 +56,21 @@ sudo pacman -S --needed --noconfirm \
   rofi \
   rsync \
   shfmt \
-  speech-dispatcher \
+  timeshift \
   tmux \
   trash-cli \
+  ufw \
+  vim \
+  virt-manager \
+  virtualbox \
+  virtualbox-host-dkms \
   xclip \
   xdotool \
   xsel
 
-yay -S --needed --noconfirm \
-  git-open
-
-echo '===> Install basic GUI apps'
-
 flathub_packages=(
   com.brave.Browser
+  com.calibre_ebook.calibre
   com.discordapp.Discord
   com.slack.Slack
   com.transmissionbt.Transmission
@@ -76,8 +80,7 @@ flathub_packages=(
   org.gnome.Calculator
   org.gnome.Evince
   org.gnome.Loupe
-  org.kde.arianna
-  org.libreoffice.LibreOffice
+  org.gnome.Todo
   org.videolan.VLC
 )
 
@@ -85,41 +88,12 @@ for pkg in "${flathub_packages[@]}"; do
   flatpak install -y --noninteractive flathub "$pkg"
 done
 
-sudo pacman -S --needed --noconfirm \
-  gnome-screenshot \
-  virt-manager
-
 yay -S --needed --noconfirm \
   1password \
   freetube-bin \
+  git-open \
   webapp-manager \
   ytmdesktop-git
-
-echo '===> Install backup tools'
-
-sudo pacman -S --needed --noconfirm \
-  grsync \
-  rsync \
-  timeshift
-
-echo '===> Install firewall'
-
-sudo pacman -S --needed --noconfirm ufw
-
-echo '===> Install docker'
-
-# https://wiki.archlinux.org/title/docker
-sudo pacman -S --needed --noconfirm \
-  docker \
-  docker-compose
-
-echo '===> Install virtualbox'
-
-# virtualbox for kernels other than the "linux" kernel
-# https://wiki.archlinux.org/title/VirtualBox
-sudo pacman -S --needed --noconfirm \
-  virtualbox \
-  virtualbox-host-dkms
 
 echo '===> Install ohmyzsh'
 
@@ -127,16 +101,12 @@ sudo pacman -S --needed --noconfirm zsh
 
 ./shared/install_ohmyzsh.sh
 
-echo '===> Install Japanese input method'
-
-sudo pacman -S --needed --noconfirm \
-  fcitx5-im \
-  fcitx5-mozc
-
-echo '===> Install fonts'
+echo '===> Install input methods and fonts'
 
 # https://wiki.archlinux.org/title/Localization/Japanese
 sudo pacman -S --needed --noconfirm \
+  fcitx5-im \
+  fcitx5-mozc \
   noto-fonts \
   noto-fonts-cjk \
   noto-fonts-emoji \
@@ -148,10 +118,6 @@ sudo pacman -S --needed --noconfirm \
 echo '===> Install greenclip'
 
 ./shared/install_greenclip.sh
-
-echo '===> Install jetpack'
-
-./shared/install_jetpack.sh
 
 echo '===> Install asdf plugins'
 
