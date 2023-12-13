@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-echo "==> Installing asdf"
-
 if command -v asdf &>/dev/null; then
   echo "asdf is already installed"
   asdf update

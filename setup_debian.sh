@@ -1,0 +1,137 @@
+#!/bin/bash
+set -eu
+
+# Check paths
+# https://stackoverflow.com/a/246128/3837223
+SCRIPT_PATH="$(
+  cd -- "$(dirname "$0")" >/dev/null 2>&1
+  pwd -P
+)"
+
+echo "current dir: $(pwd)"
+echo "script path: $SCRIPT_PATH"
+echo
+
+echo '===> Install packages with apt'
+# to get possibly old but stable programs
+
+sudo apt update && sudo apt upgrade
+
+sudo apt install --yes \
+  curl \
+  delta \
+  direnv \
+  flameshot \
+  flatpak \
+  fzf \
+  git \
+  grsync \
+  htop \
+  libavcodec-extra \
+  ncdu \
+  neofetch \
+  ranger \
+  ripgrep \
+  rofi \
+  rsync \
+  shfmt \
+  tmux \
+  trash-cli \
+  ufw \
+  vim \
+  virt-manager \
+  vlc \
+  wget \
+  xclip \
+  xsel \
+  zsh
+
+(
+  # just in case, ensure that we are in the right path
+  cd "$SCRIPT_PATH"
+
+  echo '===> Install ohmyzsh'
+  ./shared/install_ohmyzsh.sh
+
+  echo '===> Install dotfiles'
+  ./shared/install_dotfiles.sh
+
+  echo '===> Install asdf'
+  ./shared/install_asdf.sh
+
+  echo '===> Install FiraCodeNerdFont'
+  ./shared/install_nerd_fonts.sh
+
+  echo '===> Install elixir'
+  ./debian/install_elixir.sh
+
+  echo '===> Install nerves'
+  ./debian/install_nerves_systems.sh
+
+  echo '===> Install vscodium'
+  ./debian/install_vscodium.sh
+
+  echo '===> Install Docker'
+  ./debian/install_docker.sh
+
+  echo '===> Install 1password'
+  ./debian/install_1password.sh
+)
+
+echo '===> Install asdf plugins'
+# to manage multiple runtime versions
+
+ASDF_PLUGINS=(
+  neovim
+  nodejs
+)
+
+for plugin in "${ASDF_PLUGINS[@]}"; do
+  asdf plugin add "$plugin" || true
+  asdf install "$plugin" latest
+  asdf global "$plugin" latest
+done
+
+asdf list
+
+echo '===> Install packages with flatpak'
+# to get latest standalone apps
+
+# https://docs.flatpak.org/en/latest/using-flatpak.html
+sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+flathub_packages=(
+  com.calibre_ebook.calibre
+  com.discordapp.Discord
+  com.slack.Slack
+  com.transmissionbt.Transmission
+  com.uploadedlobster.peek
+  org.chromium.Chromium
+  org.flameshot.Flameshot
+  org.gimp.GIMP
+  org.gnome.Calculator
+  org.gnome.Evince
+  org.gnome.Loupe
+  org.gnome.Rhythmbox3
+  org.gnome.World.PikaBackup
+  org.videolan.VLC
+)
+
+for pkg in "${flathub_packages[@]}"; do
+  flatpak install -y --noninteractive flathub "$pkg"
+done
+
+echo '===> Set default web browser'
+
+DEFAULT_WEB_BROWSER=org.chromium.Chromium.desktop
+
+xdg-settings set default-web-browser "$DEFAULT_WEB_BROWSER"
+
+if ! xdg-settings check default-web-browser "$DEFAULT_WEB_BROWSER"; then
+  echo "warning: couldn't set default web browser to $DEFAULT_WEB_BROWSER"
+fi
+
+echo "default web browser: $(xdg-settings get default-web-browser)"
+
+echo ''
+echo 'All set 🎉🎉🎉'
