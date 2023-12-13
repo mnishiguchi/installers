@@ -17,11 +17,11 @@ main() {
 
   (
     cd "$SCRIPT_PATH"
-    ./ubuntu/install_xubuntu_desktop
-    ./ubuntu/install_firefox
-    ./ubuntu/install_vs_code_aarch64
+    ./debian/install_xubuntu_desktop
+    ./debian/install_firefox
+    ./debian/install_vs_code_aarch64
     ./install_asdf_bash
-    ./install_erlang_and_elixir
+    ./install_elixir
     ./install_nerves_systems
   )
 

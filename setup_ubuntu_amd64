@@ -17,10 +17,10 @@ main() {
 
   (
     cd "$SCRIPT_PATH"
-    ./ubuntu/install_vs_code_flatpak
-    ./ubuntu/install_asdf_bash
-    ./ubuntu/install_erlang_and_elixir
-    ./ubuntu/install_nerves_systems
+    ./debian/install_vs_code_flatpak
+    ./debian/install_asdf_bash
+    ./debian/install_elixir
+    ./debian/install_nerves_systems
   )
 
   echo "Done"
