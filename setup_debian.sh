@@ -12,35 +12,59 @@ echo "current dir: $(pwd)"
 echo "script path: $SCRIPT_PATH"
 echo
 
+echo '===> Add package repositories'
+# some valuable packages are not found in the default Debian repositories
+
+sudo apt install --yes software-properties-common
+sudo add-apt-repository contrib
+sudo add-apt-repository non-free
+
 echo '===> Install packages with apt'
 # to get possibly old but stable programs
 
 sudo apt update && sudo apt upgrade
 
+# https://kskroyal.com/thingsafterdebianlinux/
 sudo apt install --yes \
+  bpytop \
+  cargo \
+  clang \
   curl \
+  default-jdk \
   delta \
   direnv \
+  exfat-fuse \
+  firmware-linux \
+  firmware-linux-nonfree \
   flameshot \
   flatpak \
   fzf \
   git \
   grsync \
+  gstreamer1.0-vaapi \
   htop \
   libavcodec-extra \
+  libc6-i386 \
+  libc6-x32 \
+  libu2f-udev \
+  linux-headers-"$(uname -r)" \
   ncdu \
   neofetch \
   ranger \
   ripgrep \
   rofi \
   rsync \
+  samba-common-bin \
   shfmt \
   tmux \
   trash-cli \
   ufw \
+  unrar \
   vim \
   virt-manager \
   vlc \
+  vulkan-tools \
+  vulkan-validationlayers \
   wget \
   xclip \
   xsel \
