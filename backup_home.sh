@@ -40,13 +40,18 @@ mkdir -p "$RSYNC_BACKUP_DIR"
 
 LOG_DIR="$HOME/.rsync"
 mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/backup-home.log"
+LOG_FILE="$LOG_DIR/backup-home-$(date +'%Y-%m').log"
 
 RSYNC_ARGS=(
   -avhP
-  --include='*/'
-  --include={'.config/***','.icons/***','.local/***','.themes/***','Code/***','Documents/***','Desktop/***','Pictures/***'}
-  --exclude='*'
+  --exclude='.asdf/***'
+  --exclude='.cache/***'
+  --exclude='.mozilla/***'
+  --exclude='.oh-my-zsh/***'
+  --exclude='.var/***'
+  --exclude='.vim/***'
+  --exclude='Downloads/***'
+  --exclude='nvim/***'
   --prune-empty-dirs
   --log-file="$LOG_FILE"
   --backup

@@ -20,7 +20,7 @@ TARGET_DIR="$HOME/"
 
 LOG_DIR="$HOME/.rsync"
 mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/restore-home.log"
+LOG_FILE="$LOG_DIR/restore-home-$(date +'%Y-%m').log"
 
 RSYNC_ARGS=(
   -avhP
