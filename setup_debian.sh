@@ -157,5 +157,11 @@ fi
 
 echo "default web browser: $(xdg-settings get default-web-browser)"
 
+echo '===> Set desktop manager'
+
+sudo apt install --yes lightdm slick-greeter lightdm-settings
+sudo dpkg-reconfigure lightdm && echo 'ok'
+sudo lightdm --show-config
+
 echo ''
 echo 'All set 🎉🎉🎉'
