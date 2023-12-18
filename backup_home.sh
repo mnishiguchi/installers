@@ -30,11 +30,11 @@ get_hostname() {
   fi
 }
 
-# directory for synching
-TARGET_DIR="$BACKUP_DISK/backups/$(get_hostname)/home-$(whoami)/$(date +'%F')"
+# directory for synching per month
+TARGET_DIR="$BACKUP_DISK/backups/$(get_hostname)/home-$(whoami)/$(date +'%Y-%m')"
 mkdir -p "$TARGET_DIR"
 
-# directory for changed files
+# directory for changed files per sync
 RSYNC_BACKUP_DIR="${TARGET_DIR}-backups"
 mkdir -p "$RSYNC_BACKUP_DIR"
 
