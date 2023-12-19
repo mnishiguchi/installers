@@ -13,8 +13,9 @@ BACKUP_DISK="$1"
 
 if [ -z "$BACKUP_DISK" ] || [ ! -d "$BACKUP_DISK" ]; then
   echo "error: backup disk \"$BACKUP_DISK\" not found -- aborting"
-  find "/media/$USER" >/dev/null 2>&1
-  find "/run/media/$USER" >/dev/null 2>&1
+  echo "maybe one of these?"
+  [ -d "/media/$USER" ] && find "/media/$USER" -mindepth 1 -maxdepth 1 -type d
+  [ -d "/run/media/$USER" ] && find "/run/media/$USER" -mindepth 1 -maxdepth 1 -type d
   exit 1
 fi
 
@@ -46,12 +47,30 @@ RSYNC_ARGS=(
   -avhP
   --exclude='.asdf/***'
   --exclude='.cache/***'
+  --exclude='.docker/***'
+  --exclude='.gnupg/***'
+  --exclude='.hex/***'
+  --exclude='.links/***'
   --exclude='.mozilla/***'
+  --exclude='.nerves/***'
+  --exclude='.npm/***'
   --exclude='.oh-my-zsh/***'
+  --exclude='.pki/***'
+  --exclude='.ssh/***'
+  --exclude='.subversion/***'
   --exclude='.var/***'
   --exclude='.vim/***'
+  --exclude='.vscode/***'
+  --exclude='.vscode-oss/***'
+  --exclude='.yarn/***'
+  --exclude='_build/***'
+  --exclude='deps/***'
   --exclude='Downloads/***'
+  --exclude='Music/***'
+  --exclude='nerves_systems/***'
+  --exclude='node_modules/***'
   --exclude='nvim/***'
+  --exclude='VirtualBox VMs/***'
   --prune-empty-dirs
   --log-file="$LOG_FILE"
   --backup
