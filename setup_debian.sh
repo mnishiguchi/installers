@@ -100,6 +100,9 @@ sudo apt install --yes \
 
   echo '===> Install 1password'
   ./debian/install_1password.sh
+
+  echo '===> Install auto-cpufreq'
+  ./shared/install_auto_cpufreq.sh
 )
 
 echo '===> Install asdf plugins'
