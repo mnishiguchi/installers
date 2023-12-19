@@ -148,6 +148,11 @@ for pkg in "${flathub_packages[@]}"; do
   flatpak install -y --noninteractive flathub "$pkg"
 done
 
+echo '===> Install package with npm'
+
+npm install -g diff-so-fancy
+npm install -g git-open
+
 echo '===> Set default web browser'
 
 DEFAULT_WEB_BROWSER=org.chromium.Chromium.desktop
