@@ -16,8 +16,8 @@ echo '===> Add package repositories'
 # some valuable packages are not found in the default Debian repositories
 
 sudo apt install --yes software-properties-common
-sudo add-apt-repository contrib
-sudo add-apt-repository non-free
+sudo add-apt-repository --yes contrib
+sudo add-apt-repository --yes non-free
 
 echo '===> Install packages with apt'
 # to get possibly old but stable programs
