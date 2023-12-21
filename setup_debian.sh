@@ -67,6 +67,7 @@ sudo apt install --yes \
   vulkan-validationlayers \
   wget \
   xclip \
+  xdotool \
   xsel \
   zsh
 
