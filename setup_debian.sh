@@ -154,6 +154,13 @@ echo '===> Install package with npm'
 npm install -g diff-so-fancy
 npm install -g git-open
 
+echo '===> Install input methods and fonts'
+
+# https://wiki.debian.org/I18n/Fcitx5
+# https://wiki.archlinux.org/title/Localization/Japanese
+sudo apt install --yes fcitx5 fcitx5-mozc
+sudo apt remove --yes uim uim-mozc
+
 echo '===> Set default web browser'
 
 DEFAULT_WEB_BROWSER=org.chromium.Chromium.desktop
