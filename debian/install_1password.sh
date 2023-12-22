@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if dpkg -S 1password &>/dev/null; then
+if command -v 1password &>/dev/null; then
   echo "warning: already installed -- skipping"
   exit 0
 fi
@@ -25,5 +25,5 @@ fi
   curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
 
   # Install 1Password
-  sudo apt install --yes 1password
+  sudo apt update && sudo apt install 1password
 )
