@@ -97,7 +97,11 @@ sudo apt install --yes \
   ./debian/install_vscodium.sh
 
   echo '===> Install Docker'
-  ./debian/install_docker.sh
+  ./debian/docker/install_docker_engine.sh
+  ./debian/docker/setup_docker_group.sh
+  sudo apt install --yes docker-compose-plugin
+  docker --version
+  docker compose version
 
   echo '===> Install 1password'
   ./debian/install_1password.sh
