@@ -68,6 +68,7 @@ sudo apt install --yes \
   wget \
   xclip \
   xdotool \
+  xfce4-clipman \
   xsel \
   zsh
 
