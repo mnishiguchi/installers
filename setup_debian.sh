@@ -22,10 +22,12 @@ sudo add-apt-repository --yes non-free
 echo '===> Install packages with apt'
 # to get possibly old but stable programs
 
-sudo apt update && sudo apt upgrade
+sudo apt update --yes
+sudo apt upgrade --yes
 
 # https://kskroyal.com/thingsafterdebianlinux/
-sudo apt install --yes \
+sudo apt install \
+  alacritty \
   bpytop \
   cargo \
   clang \
@@ -70,7 +72,8 @@ sudo apt install --yes \
   xdotool \
   xfce4-clipman \
   xsel \
-  zsh
+  zsh \
+  --yes
 
 (
   # just in case, ensure that we are in the right path
@@ -197,6 +200,12 @@ sudo update-alternatives --install /usr/bin/www-browser www-browser "$DEFAULT_WE
 sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser "$DEFAULT_WEB_BROWSER_CMD" 255
 
 ls -l /etc/alternatives | awk 'BEGIN{FS=" ";OFS="\t"} /browser/ {print $9,$11}'
+
+echo '===> Set default terminal'
+
+sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/alacritty 255
+
+ls -l /etc/alternatives | awk 'BEGIN{FS=" ";OFS="\t"} /terminal-emulator/ {print $9,$11}'
 
 echo '===> Set desktop manager'
 
