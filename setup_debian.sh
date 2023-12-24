@@ -168,15 +168,35 @@ sudo apt remove --yes uim uim-mozc
 
 echo '===> Set default web browser'
 
-DEFAULT_WEB_BROWSER=org.chromium.Chromium.desktop
+DEFAULT_WEB_BROWSER_DESKTOP=org.chromium.Chromium.desktop
 
-xdg-settings set default-web-browser "$DEFAULT_WEB_BROWSER"
+# https://wiki.debian.org/DefaultWebBrowser
+xdg-settings set default-web-browser "$DEFAULT_WEB_BROWSER_DESKTOP"
+xdg-mime default "$DEFAULT_WEB_BROWSER_DESKTOP" x-scheme-handler/https x-scheme-handler/http
 
-if ! xdg-settings check default-web-browser "$DEFAULT_WEB_BROWSER"; then
-  echo "warning: couldn't set default web browser to $DEFAULT_WEB_BROWSER"
+if ! xdg-settings check default-web-browser "$DEFAULT_WEB_BROWSER_DESKTOP"; then
+  echo "warning: couldn't set default web browser to $DEFAULT_WEB_BROWSER_DESKTOP"
 fi
 
 echo "default web browser: $(xdg-settings get default-web-browser)"
+
+echo '===> Add default web browser to debian alternatives'
+
+DEFAULT_WEB_BROWSER_CMD="$HOME/.local/bin/default-www-browser"
+
+# Create a custom script that launches my desired web browser
+cat <<-EOF >"$DEFAULT_WEB_BROWSER_CMD"
+#!/bin/sh
+/var/lib/flatpak/exports/bin/org.chromium.Chromium "$@" &
+EOF
+
+chmod +x "$DEFAULT_WEB_BROWSER_CMD"
+
+# https://wiki.debian.org/DebianAlternatives
+sudo update-alternatives --install /usr/bin/www-browser www-browser "$DEFAULT_WEB_BROWSER_CMD" 255
+sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser "$DEFAULT_WEB_BROWSER_CMD" 255
+
+ls -l /etc/alternatives | awk 'BEGIN{FS=" ";OFS="\t"} /browser/ {print $9,$11}'
 
 echo '===> Set desktop manager'
 
