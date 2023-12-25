@@ -12,6 +12,17 @@ echo "current dir: $(pwd)"
 echo "script path: $SCRIPT_PATH"
 echo
 
+# Make directories
+mkdir -p "$HOME/.config"
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/Code"
+mkdir -p "$HOME/Documents"
+mkdir -p "$HOME/Downloads"
+mkdir -p "$HOME/Music"
+mkdir -p "$HOME/Pictures/backgrounds"
+mkdir -p "$HOME/Pictures/screenshots"
+mkdir -p "$HOME/Videos/screen-recordings"
+
 echo '===> Add package repositories'
 # some valuable packages are not found in the default Debian repositories
 
