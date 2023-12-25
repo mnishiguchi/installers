@@ -148,6 +148,7 @@ echo '===> Install packages with flatpak'
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 flathub_packages=(
+  com.brave.Browser
   com.calibre_ebook.calibre
   com.discordapp.Discord
   com.slack.Slack
