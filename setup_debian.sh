@@ -195,29 +195,29 @@ fi
 
 echo "default web browser: $(xdg-settings get default-web-browser)"
 
-echo '===> Add default web browser to debian alternatives'
-
-DEFAULT_WEB_BROWSER_CMD="$HOME/.local/bin/default-www-browser"
-
 # Create a custom script that launches my desired web browser
+DEFAULT_WEB_BROWSER_CMD="$HOME/.local/bin/default-www-browser"
+touch "$DEFAULT_WEB_BROWSER_CMD" && chmod +x "$_"
+
 cat <<-EOF >"$DEFAULT_WEB_BROWSER_CMD"
 #!/bin/sh
 /var/lib/flatpak/exports/bin/org.chromium.Chromium "$@" &
 EOF
 
-chmod +x "$DEFAULT_WEB_BROWSER_CMD"
-
 # https://wiki.debian.org/DebianAlternatives
 sudo update-alternatives --install /usr/bin/www-browser www-browser "$DEFAULT_WEB_BROWSER_CMD" 255
 sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser "$DEFAULT_WEB_BROWSER_CMD" 255
+find /etc/alternatives -type l -ls | awk 'BEGIN{OFS="\t"} /browser/ {print $11,$13}'
 
-ls -l /etc/alternatives | awk 'BEGIN{FS=" ";OFS="\t"} /browser/ {print $9,$11}'
-
-echo '===> Set default terminal'
+echo '===> Set default terminal emulator'
 
 sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/alacritty 255
+find /etc/alternatives -type l -ls | awk 'BEGIN{OFS="\t"} /terminal/ {print $11,$13}'
 
-ls -l /etc/alternatives | awk 'BEGIN{FS=" ";OFS="\t"} /terminal-emulator/ {print $9,$11}'
+echo '===> Set default vim'
+
+sudo update-alternatives --install /usr/bin/vim vim "$(which nvim)" 255
+find /etc/alternatives -type l -ls | awk 'BEGIN{OFS="\t"} /vim$/ {print $11,$13}'
 
 echo '===> Set desktop manager'
 
