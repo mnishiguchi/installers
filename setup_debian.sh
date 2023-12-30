@@ -49,7 +49,6 @@ sudo apt install \
   exfat-fuse \
   firmware-linux \
   firmware-linux-nonfree \
-  flameshot \
   flatpak \
   fzf \
   git \
@@ -75,7 +74,6 @@ sudo apt install \
   unrar \
   vim \
   virt-manager \
-  vlc \
   vulkan-tools \
   vulkan-validationlayers \
   wget \
