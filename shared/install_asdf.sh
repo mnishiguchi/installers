@@ -10,6 +10,8 @@ fi
 
 git clone https://github.com/asdf-vm/asdf.git "$ASDF_DIR" --branch v0.13.0
 
+[ command -v omz reload ] && omz reload
+
 if ! command -v asdf >/dev/null 2>&1; then
   echo "error: asdf must be installed -- aborting"
   echo "Hints:"
