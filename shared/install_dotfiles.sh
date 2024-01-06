@@ -1,17 +1,15 @@
 #!/bin/bash
 set -e
 
-CODE_DIR="$HOME/Code"
+dotfiles="$HOME/.dotfiles"
 
-if [ -d "$CODE_DIR/dotfiles" ]; then
-  echo "warning: dotfiles already installed -- skipping"
+if [ -d "$dotfiles" ]; then
+  echo "warning: dotfiles already installed at $dotfiles"
   exit 0
 fi
 
 (
-  mkdir -p "$CODE_DIR"
-  cd "$CODE_DIR"
-  git clone https://github.com/mnishiguchi/dotfiles.git
-  cd "$CODE_DIR/dotfiles"
+  git clone https://github.com/mnishiguchi/dotfiles.git "$dotfiles"
+  cd "$dotfiles"
   ./symlink-all.sh
 )
