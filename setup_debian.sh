@@ -88,9 +88,6 @@ sudo apt install \
   # just in case, ensure that we are in the right path
   cd "$SCRIPT_PATH"
 
-  echo '===> Install ohmyzsh'
-  ./shared/install_ohmyzsh.sh
-
   echo '===> Install dotfiles'
   ./shared/install_dotfiles.sh
 

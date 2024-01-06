@@ -58,9 +58,6 @@ brew install --cask font-fira-code-nerd-font
 brew install imagemagick
 brew install ghostscript
 
-echo '===> Install ohmyzsh'
-$SCRIPT_PATH/shared/install_ohmyzsh.sh
-
 echo '===> Install dotfiles'
 $SCRIPT_PATH/shared/install_dotfiles.sh
 

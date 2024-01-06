@@ -95,12 +95,6 @@ yay -S --needed --noconfirm \
   webapp-manager \
   ytmdesktop-git
 
-echo '===> Install ohmyzsh'
-
-sudo pacman -S --needed --noconfirm zsh
-
-./shared/install_ohmyzsh.sh
-
 echo '===> Install input methods and fonts'
 
 # https://wiki.archlinux.org/title/Localization/Japanese
