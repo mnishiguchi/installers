@@ -1,33 +1,39 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
 # Install ohmyzsh following the official documentation.
 # https://github.com/ohmyzsh/ohmyzsh/wiki/Installing-ZSH
 
-if ! command -v zsh >/dev/null 2>&1; then
-  echo "error: zsh must be installed -- aborting"
-  exit 1
+need() {
+  if ! command -v "$1" &>/dev/null; then
+    echo "ERROR: need $1 (command not found)"
+  fi
+}
+
+# Dependencies
+need curl
+need zsh
+
+zsh_path="$(command -v zsh)"
+
+echo "ZSH info"
+echo "  path:    $zsh_path"
+echo "  version: $("$zsh_path" --version)"
+
+if ! grep "$zsh_path" /etc/shells &>/dev/null; then
+  echo "Adding '$zsh_path' to /etc/shells"
+  sudo bash -c "echo $zsh_path >> /etc/shells"
 fi
 
-if ! echo "$SHELL" | grep -q "zsh"; then
-  echo "error: default shell must be zsh: $SHELL - aborting"
-  echo "Hints:"
-  echo "* Verify installation by running zsh --version"
-  echo "* Make it your default shell: chsh -s \$(which zsh)"
-  echo "* Log out and log back in again to use your new default shell"
-  echo "* For more info, see https://github.com/ohmyzsh/ohmyzsh/wiki/Installing-ZSH"
-  exit 1
-fi
+echo "Changing your shell to zsh"
+sudo chsh -s "$zsh_path" "$USER"
 
-if [ -d "$ZSH" ]; then
-  echo "warning: ohmyzsh already installed -- skipping"
+if [[ -d "$ZSH" ]]; then
+  echo "ohmyzsh is already installed"
   exit 0
 fi
 
-# Expected result: 'zsh 5.8' or similar
-echo "$SHELL"
-zsh --version
-
+echo "Installing ohmyzsh"
 # https://ohmyz.sh/#install
 # https://github.com/ohmyzsh/ohmyzsh/tree/master#unattended-install
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended

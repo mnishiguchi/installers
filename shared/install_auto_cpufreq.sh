@@ -1,15 +1,15 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
 DOWNLOADS_DIR="$HOME/Downloads"
 
-if command -v auto-cpufreq >/dev/null 2>&1; then
-  echo "warning: already installed -- skipping"
+if command -v auto-cpufreq &>/dev/null; then
+  puts "auto-cpufreq is already installed"
   exit 0
 fi
 
 (
-  # Download  source code
+  # Download source code
   cd "$DOWNLOADS_DIR"
   git clone https://github.com/AdnanHodzic/auto-cpufreq.git
 

@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #
 # Install Linux Driver for USB WiFi Adapters that are based on the RTL8812BU
 # and RTL8822BU Chipsets
 #
 
-set -e
+set -eu
 
 sudo apt install -y \
   linux-headers-"$(uname -r)" \

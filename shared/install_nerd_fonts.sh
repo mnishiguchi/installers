@@ -1,18 +1,18 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
-FONT_NAME=FiraCodeNerdFont
-FONT_SOURCE_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraCode.zip"
-FONT_TARGET_DIR="$HOME/.local/share/fonts/$FONT_NAME"
+font_name=FiraCodeNerdFont
+font_source_url="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraCode.zip"
+font_target_dir="$HOME/.local/share/fonts/$font_name"
 
-if fc-list | grep -q "$FONT_NAME"; then
-  echo "warning: already installed -- skipping"
+if fc-list | grep -q "$font_name"; then
+  echo "${font_name} is already installed"
   exit 0
 fi
 
 (
-  mkdir -p "$FONT_TARGET_DIR" && cd "$FONT_TARGET_DIR"
-  curl --fail --location "$FONT_SOURCE_URL" --output tmp.zip
+  mkdir -p "$font_target_dir" && cd "$font_target_dir"
+  curl --fail --location "$font_source_url" --output tmp.zip
   unzip tmp.zip
   rm -f tmp.zip
 )

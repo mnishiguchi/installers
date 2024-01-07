@@ -1,8 +1,8 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
 if command -v greenclip &>/dev/null; then
-  echo "warning: already installed -- skipping"
+  echo "greenclip already installed"
   exit 1
 fi
 

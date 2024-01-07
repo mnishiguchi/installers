@@ -1,136 +1,289 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu
 
-# Check paths
 # https://stackoverflow.com/a/246128/3837223
-SCRIPT_PATH="$(
-  cd -- "$(dirname "$0")" >/dev/null 2>&1
-  pwd -P
-)"
+# this_name="$(basename "$0")"
+this_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
-echo "current dir: $(pwd)"
-echo "script path: $SCRIPT_PATH"
-echo
+all_set=""
+step_name=""
 
-# Make directories
-mkdir -p "$HOME/.config"
+help() {
+  cat <<'EOF'
+Bootstrap your macOS development system.
+
+Packages will be installed with Homebrew based on ~/.Brewfile. If ~/.Brewfile
+does not exist, default packages will be installed instead. See source code for
+a list of default packages.
+
+Usage:
+    setup_macos.sh [options]
+
+Options:
+    --help, -h      Display this message
+    --debug         Display any debugging information
+EOF
+}
+
+say_sth() {
+  local fmt="$1"
+  shift
+
+  # shellcheck disable=SC2059
+  printf "\\n$fmt\\n" "$@"
+}
+
+say_ok() { say_sth "\e[1;32m✅ $1\e[0m"; }
+say_err() { say_sth "\e[1;31m❌ $1\e[0m" >&2; }
+say_warn() { say_sth "\e[1;33m⚠ $1\e[0m"; }
+
+begin_step() {
+  step_name="$*"
+  say_sth "\e[1;35m⟶ $1\e[0m"
+}
+
+ok_step() {
+  step_name=""
+  say_ok "OK"
+}
+
+skip_step() {
+  step_name=""
+  say_warn "SKIPPED\n$1"
+}
+
+## Parse options
+
+debug=false
+while test $# -gt 0; do
+  case $1 in
+  --help | -h)
+    help
+    exit 0
+    ;;
+  --debug)
+    debug=true
+    ;;
+  *) ;;
+  esac
+  shift
+done
+
+cleanup() {
+  set +e
+  if [ -z "$all_set" ]; then
+    if [ -n "$step_name" ]; then
+      say_err "$step_name FAILED" >&2
+    else
+      say_err "FAILED" >&2
+    fi
+
+    if [ -z "$debug" ]; then
+      say_err "Run '$0 --debug' for debugging output." >&2
+    fi
+  fi
+}
+
+trap "cleanup" EXIT
+
+## Common directories
+
+# https://wiki.archlinux.org/title/XDG_Base_Directory
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+mkdir -p "$XDG_CONFIG_HOME"
+mkdir -p "$XDG_CACHE_HOME"
+mkdir -p "$XDG_DATA_HOME"
+mkdir -p "$XDG_STATE_HOME"
 mkdir -p "$HOME/.local/bin"
-mkdir -p "$HOME/Code"
-mkdir -p "$HOME/Pictures/screenshots"
-mkdir -p "$HOME/Movies/screen-recordings"
-mkdir -p "$HOME/tmp"
 
-echo '===> Install or update Homebrew'
+## Strap
 
-if command -v brew; then
-  brew update
-  brew upgrade
-else
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+begin_step 'Bootstrapping your macOS development system...'
+
+strap_dir="$XDG_CONFIG_HOME/strap"
+
+if ! [ -d "$strap_dir" ]; then
+  git clone https://github.com/MikeMcQuaid/strap "$strap_dir"
 fi
 
-echo '===> Install packages with Homebrew'
-# to get possibly old but stable programs
+if [[ "$debug" = true ]]; then
+  STRAP_DEBUG="1" "$strap_dir/bin/strap.sh"
+else
+  "$strap_dir/bin/strap.sh"
+fi
 
-brew install TheZoraiz/ascii-image-converter/ascii-image-converter
-brew install bat
-brew install cpufetch
-brew install direnv
-brew install fzf
-brew install git-delta
-brew install htop
-brew install ncdu
-brew install neofetch
-brew install ranger
-brew install rar
-brew install ripgrep
-brew install shfmt
-brew install stats
-brew install tmux
-brew install tree
-brew install --cask sol
-brew install --cask vscodium
+ok_step
 
-brew tap homebrew/cask-fonts
-brew install --cask font-fira-code-nerd-font
+begin_step 'Installing packages with Homebrew...'
 
-# https://imagemagick.org/script/download.php
-brew install imagemagick
-brew install ghostscript
+# https://formulae.brew.sh
+HOMEBREW_BUNDLE_FILE_GLOBAL="${HOMEBREW_BUNDLE_FILE_GLOBAL:-$HOME/.Brewfile}"
 
-echo '===> Install dotfiles'
-$SCRIPT_PATH/shared/install_dotfiles.sh
+if [[ -f "$HOMEBREW_BUNDLE_FILE_GLOBAL" ]]; then
+  echo "Brewfile location: $HOMEBREW_BUNDLE_FILE_GLOBAL"
+  brew bundle --global
+else
+  echo "Brewfile was not found -- installing default packages"
+  brew bundle --file=- <<EOF
+brew "openssl@3"
 
-echo '===> Configure Git'
-$SCRIPT_PATH/shared/configure_git.sh
+# from the Homebrew Formulae
+brew "bash"
+brew "bat"
+brew "bitwise"
+brew "cpufetch"
+brew "diff-so-fancy"
+brew "direnv"
+brew "eza"
+brew "fd"
+brew "fzf"
+brew "gawk"
+brew "ghostscript"
+brew "git-delta"
+brew "git-open"
+brew "imagemagick"
+brew "lazygit"
+brew "ncdu"
+brew "neofetch"
+brew "neovim"
+brew "picocom"
+brew "ripgrep"
+brew "shellcheck"
+brew "shfmt"
+brew "tldr"
+brew "tmux"
+brew "tree"
+brew "wget"
+brew "zsh"
 
-echo '===> Check Github access'
-$SCRIPT_PATH/shared/check_github_access.sh
+# from the Cask project
+cask "1password"
+cask "brave-browser"
+cask "discord"
+cask "firefox"
+cask "font-fira-code-nerd-font"
+cask "gimp"
+cask "google-chrome"
+cask "iterm2"
+cask "rectangle"
+cask "slack"
+cask "sol"
+cask "stats"
+cask "transmission"
+cask "visual-studio-code"
+cask "vscodium"
+EOF
 
-echo '===> Install asdf'
-$SCRIPT_PATH/shared/install_asdf.sh
+  # Handle docker separately because it is a lot of work to resolve conflicts
+  # in case docker has already been installed without using Homebrew Cask.
+  if command -v docker >/dev/null; then
+    if brew list --cask | grep -Fq docker; then
+      brew upgrade --cask docker
+    else
+      skip_step "docker is already installed without using Homebrew Cask -- ignoring"
+    fi
+  else
+    brew install --cask docker
+  fi
+fi
 
-echo '===> Install asdf plugins'
-# to manage multiple runtime versions
+ok_step
 
+## Github
+
+begin_step 'Checking Github access...'
+
+"$this_dir/shared/check_github_access.sh"
+
+ok_step
+
+## asdf
+
+begin_step 'Installing asdf...'
+
+"$this_dir/shared/install_asdf.sh"
+
+ok_step
+
+begin_step 'Installing asdf plugins...'
+
+brew bundle --file=- <<EOF
 # https://github.com/asdf-vm/asdf-erlang
-brew install autoconf
-brew install openssl
-brew install wxwidgets
-brew install libxslt fop
+brew "autoconf"
+brew "openssl"
+brew "wxwidgets"
+brew "libxslt"
+brew "fop"
 
 # https://hexdocs.pm/nerves/installation.html
-brew install fwup squashfs coreutils xz pkg-config
+brew "fwup"
+brew "squashfs"
+brew "coreutils"
+brew "xz"
+brew "pkg-config"
 
 # https://github.com/rbenv/ruby-build/discussions/2118
-brew install libyaml
+brew "libyaml"
+EOF
 
-ASDF_PLUGINS=(
+asdf_plugins=(
   erlang
   elixir
-  neovim
   nodejs
-  python
   ruby
 )
 
-for plugin in "${ASDF_PLUGINS[@]}"; do
-  asdf plugin add "$plugin" || true
-  asdf install "$plugin" latest
-  asdf global "$plugin" latest
-done
+add_or_update_asdf_plugin() {
+  local plugin_name="$1"
 
-asdf list
-
-echo '===> Install packages with npm'
-
-npm install -g diff-so-fancy
-npm install -g git-open
-
-echo '===> Download apps with web browser'
-
-find-app() {
-  mdfind "kMDItemKind == 'Application'" | grep -iE "$1.*\.app"
+  if ! asdf plugin-list | grep -Fq "$plugin_name"; then
+    asdf plugin-add "$plugin_name" >/dev/null
+  else
+    asdf plugin-update "$plugin_name" >/dev/null
+  fi
 }
 
-# web browsers
-[ -z "$(find-app brave)" ] && open https://brave.com/download || echo "Brave is already installed"
-[ -z "$(find-app chrome)" ] && open https://www.google.com/chrome || echo "Chrome is already installed"
-[ -z "$(find-app firefox)" ] && open https://www.mozilla.org/en-US/firefox/mac || echo "Firefox is already installed"
+install_asdf_language() {
+  local language="$1"
+  local version
+  version="$(asdf latest "$language")"
 
-# other nice-to-have apps
-[ -z "$(find-app 1password)" ] && open https://1password.com/product/mac || echo "1Password is already installed"
-[ -z "$(find-app discord)" ] && open https://discord.com/download || echo "Discord is already installed"
-[ -z "$(find-app docker)" ] && open https://docs.docker.com/desktop/install/mac-install || echo "Docker is already installed"
-[ -z "$(find-app flux)" ] && open https://justgetflux.com/ || echo "f.lux is already installed"
-[ -z "$(find-app gimp)" ] && open https://www.gimp.org/downloads/ || echo "GIMP is already installed"
-[ -z "$(find-app iterm)" ] && open https://iterm2.com/downloads.html || echo "iTerm2 is already installed"
-[ -z "$(find-app rectangle)" ] && open https://rectangleapp.com || echo "Rectangle is already installed"
-[ -z "$(find-app slack)" ] && open https://slack.com/downloads/mac || echo "Slack is already installed"
-[ -z "$(find-app transmission)" ] && open https://transmissionbt.com/download || echo "Transmission is already installed"
-[ -z "$(find-app 'visual studio code')" ] && open https://code.visualstudio.com/docs/setup/mac || echo "Visual Studio Code is already installed"
+  if ! asdf list "$language" | grep -Fq "$version"; then
+    asdf install "$language" "$version" >/dev/null
+    asdf global "$language" "$version" >/dev/null
+  fi
+}
 
-cpufetch
-neofetch
-echo ''
-echo 'All set 🎉🎉🎉'
+for asdf_plugin in "${asdf_plugins[@]}"; do
+  add_or_update_asdf_plugin "$asdf_plugin"
+  install_asdf_language "$asdf_plugin"
+done
+
+echo
+asdf list
+
+ok_step
+
+## Dotfiles
+
+begin_step 'Installing dotfiles...'
+
+"$this_dir/shared/install_dotfiles.sh"
+
+ok_step
+
+## Wrapping up
+
+begin_step 'Wrapping up...'
+
+command -v cpufetch &>/dev/null && cpufetch
+command -v neofetch &>/dev/null && neofetch
+
+ok_step
+
+all_set=1
+say_sth 'All set 🎉🎉🎉'

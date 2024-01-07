@@ -1,27 +1,19 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
-ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export ASDF_DIR="${ASDF_DIR:-$XDG_CONFIG_HOME/.asdf}"
 
-if [ -d "$ASDF_DIR" ]; then
-  echo "warning: asdf already installed at $ASDF_DIR"
-  exit 0
+if [[ -d "$ASDF_DIR" ]]; then
+  echo "asdf already installed at ${ASDF_DIR}"
+else
+  git clone https://github.com/asdf-vm/asdf.git "${ASDF_DIR}" --branch v0.13.1
 fi
 
-git clone https://github.com/asdf-vm/asdf.git "$ASDF_DIR" --branch v0.13.0
+# Note: be sure to do something similart in your .bashrc, .zshrc, etc
+# See https://asdf-vm.com/guide/getting-started.html#_3-install-asdf
+source "${ASDF_DIR}/asdf.sh"
 
-# reload
-exec zsh
+# Verify that asdf command works
+asdf version
 
-if ! command -v asdf >/dev/null 2>&1; then
-  echo "error: asdf must be installed -- aborting"
-  echo "Hints:"
-  echo "* Verify installation by running 'ls $ASDF_DIR'"
-  echo "* Verify asdf command is available by running 'asdf --version'"
-  echo "* Log out and log back in again to use your new default shell"
-  echo "* For more info, see https://asdf-vm.com/guide/getting-started.html"
-  exit 1
-fi
-
-asdf --version
-asdf update

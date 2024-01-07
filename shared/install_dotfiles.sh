@@ -1,15 +1,32 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
-dotfiles="$HOME/.dotfiles"
+dotfiles_repo_url="${1:-"https://github.com/mnishiguchi/dotfiles.git"}"
+dotfiles_dir="${2:-"$HOME/.dotfiles"}"
 
-if [ -d "$dotfiles" ]; then
-  echo "warning: dotfiles already installed at $dotfiles"
-  exit 0
+dotfiles_init_script_names=(
+  install
+  install.sh
+  setup
+  setup.sh
+  bootstrap
+  bootstrap.sh
+)
+
+if [[ ! -d "$dotfiles_dir" ]]; then
+  git clone "$dotfiles_repo_url" "$dotfiles_dir"
 fi
 
 (
-  git clone https://github.com/mnishiguchi/dotfiles.git "$dotfiles"
-  cd "$dotfiles"
-  ./symlink-all.sh
+  cd "$dotfiles_dir"
+  echo "dotfile location: $dotfiles_dir"
+
+  for i in "${dotfiles_init_script_names[@]}"; do
+    if [ -f "$i" ] && [ -x "$i" ]; then
+      echo "Running $(pwd)/$i"
+      echo
+      bash "$i"
+      break
+    fi
+  done
 )
