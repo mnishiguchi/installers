@@ -38,7 +38,6 @@ sudo pacman -S --needed --noconfirm \
   direnv \
   docker \
   docker-compose \
-  fzf \
   git \
   git-delta \
   github-cli \

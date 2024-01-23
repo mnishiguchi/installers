@@ -50,7 +50,6 @@ sudo apt install \
   firmware-linux \
   firmware-linux-nonfree \
   flatpak \
-  fzf \
   git \
   grsync \
   gstreamer1.0-vaapi \
