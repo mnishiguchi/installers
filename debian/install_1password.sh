@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
 if command -v 1password &>/dev/null; then
   echo "warning: already installed -- skipping"

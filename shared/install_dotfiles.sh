@@ -13,11 +13,13 @@ dotfiles_init_script_names=(
   bootstrap.sh
 )
 
-if [[ ! -d "$dotfiles_dir" ]]; then
-  git clone "$dotfiles_repo_url" "$dotfiles_dir"
+if [[ -d "$dotfiles_dir" ]]; then
+  echo "dotfiles already installed -- skipping"
+  exit 0
 fi
 
 (
+  git clone "$dotfiles_repo_url" "$dotfiles_dir"
   cd "$dotfiles_dir"
   echo "dotfile location: $dotfiles_dir"
 

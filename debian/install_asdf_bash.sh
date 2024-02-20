@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
 if command -v asdf &>/dev/null; then
   echo "asdf is already installed"

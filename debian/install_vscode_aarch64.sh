@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
 if command -v code &>/dev/null; then
   echo "warning: already installed -- skipping"
