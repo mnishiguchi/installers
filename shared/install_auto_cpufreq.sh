@@ -4,7 +4,7 @@ set -eu
 DOWNLOADS_DIR="$HOME/Downloads"
 
 if command -v auto-cpufreq &>/dev/null; then
-  puts "auto-cpufreq is already installed"
+  echo "auto-cpufreq is already installed"
   exit 0
 fi
 

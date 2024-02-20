@@ -1,27 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu
 
-# Check paths
 # https://stackoverflow.com/a/246128/3837223
-SCRIPT_PATH="$(
-  cd -- "$(dirname "$0")" >/dev/null 2>&1
-  pwd -P
-)"
-
-echo "current dir: $(pwd)"
-echo "script path: $SCRIPT_PATH"
-echo
+# this_name="$(basename "$0")"
+this_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 # Make directories
-mkdir -p "$HOME/.config"
+# https://wiki.archlinux.org/title/XDG_Base_Directory
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}"
+mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}"
+mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}"
+mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}"
 mkdir -p "$HOME/.local/bin"
 mkdir -p "$HOME/Code"
 mkdir -p "$HOME/Documents"
 mkdir -p "$HOME/Downloads"
 mkdir -p "$HOME/Music"
-mkdir -p "$HOME/Pictures/backgrounds"
-mkdir -p "$HOME/Pictures/screenshots"
-mkdir -p "$HOME/Videos/screen-recordings"
+mkdir -p "$HOME/Pictures"
+mkdir -p "$HOME/Videos"
 
 echo '===> Add package repositories'
 # some valuable packages are not found in the default Debian repositories
@@ -80,54 +76,25 @@ sudo apt install \
   xdotool \
   xfce4-clipman \
   xsel \
-  zsh \
   --yes
 
-(
-  # just in case, ensure that we are in the right path
-  cd "$SCRIPT_PATH"
+echo '===> Install dotfiles'
 
-  echo '===> Install dotfiles'
-  ./shared/install_dotfiles.sh
+"$this_dir/shared/install_dotfiles.sh"
 
-  echo '===> Install asdf'
-  ./shared/install_asdf.sh
+echo '===> Install asdf'
 
-  echo '===> Install FiraCodeNerdFont'
-  ./shared/install_nerd_fonts.sh
-
-  echo '===> Install elixir'
-  ./debian/install_elixir.sh
-
-  echo '===> Install nerves'
-  ./debian/install_nerves_systems.sh
-
-  echo '===> Install vscodium'
-  ./debian/install_vscodium.sh
-
-  echo '===> Install Docker'
-  ./debian/docker/install_docker_engine.sh
-  ./debian/docker/setup_docker_group.sh
-  sudo apt install --yes docker-compose-plugin
-  docker --version
-  docker compose version
-
-  echo '===> Install 1password'
-  ./debian/install_1password.sh
-
-  echo '===> Install auto-cpufreq'
-  ./shared/install_auto_cpufreq.sh
-)
+"$this_dir/shared/install_asdf.sh"
 
 echo '===> Install asdf plugins'
 # to manage multiple runtime versions
 
-ASDF_PLUGINS=(
+asdf_plugins=(
   neovim
   nodejs
 )
 
-for plugin in "${ASDF_PLUGINS[@]}"; do
+for plugin in "${asdf_plugins[@]}"; do
   asdf plugin add "$plugin" || true
   asdf install "$plugin" latest
   asdf global "$plugin" latest
@@ -168,6 +135,38 @@ echo '===> Install package with npm'
 npm install -g diff-so-fancy
 npm install -g git-open
 
+echo '===> Install FiraCodeNerdFont'
+
+"$this_dir/shared/install_nerd_fonts.sh"
+
+echo '===> Install elixir'
+
+"$this_dir/debian/install_elixir.sh"
+
+echo '===> Install nerves'
+
+"$this_dir/debian/install_nerves_systems.sh"
+
+echo '===> Install vscodium'
+
+"$this_dir/debian/install_vscodium.sh"
+
+echo '===> Install Docker'
+
+"$this_dir/debian/docker/install_docker_engine.sh"
+"$this_dir/debian/docker/setup_docker_group.sh"
+sudo apt install --yes docker-compose-plugin
+docker --version
+docker compose version
+
+echo '===> Install 1password'
+
+"$this_dir/debian/install_1password.sh"
+
+echo '===> Install auto-cpufreq'
+
+"$this_dir/shared/install_auto_cpufreq.sh"
+
 echo '===> Install input methods and fonts'
 
 # https://wiki.debian.org/I18n/Fcitx5
@@ -175,45 +174,50 @@ echo '===> Install input methods and fonts'
 sudo apt install --yes fcitx5 fcitx5-mozc
 sudo apt remove --yes uim uim-mozc
 
-echo '===> Set default web browser'
+echo '===> Use Brave as default web browser'
 
-DEFAULT_WEB_BROWSER_DESKTOP=org.chromium.Chromium.desktop
+default_web_browser=com.brave.Browser
+default_web_browser_desktop=com.brave.Browser.desktop
 
 # https://wiki.debian.org/DefaultWebBrowser
-xdg-settings set default-web-browser "$DEFAULT_WEB_BROWSER_DESKTOP"
-xdg-mime default "$DEFAULT_WEB_BROWSER_DESKTOP" x-scheme-handler/https x-scheme-handler/http
+xdg-settings set default-web-browser "$default_web_browser_desktop"
+xdg-mime default "$default_web_browser_desktop" x-scheme-handler/https x-scheme-handler/http
 
-if ! xdg-settings check default-web-browser "$DEFAULT_WEB_BROWSER_DESKTOP"; then
-  echo "warning: couldn't set default web browser to $DEFAULT_WEB_BROWSER_DESKTOP"
+if ! xdg-settings check default-web-browser "$default_web_browser_desktop"; then
+  echo "warning: couldn't set default web browser to $default_web_browser_desktop"
 fi
 
 echo "default web browser: $(xdg-settings get default-web-browser)"
 
 # Create a custom script that launches my desired web browser
-DEFAULT_WEB_BROWSER_CMD="$HOME/.local/bin/default-www-browser"
-touch "$DEFAULT_WEB_BROWSER_CMD" && chmod +x "$_"
+default_web_browser_cmd="$HOME/.local/bin/default-www-browser"
+touch "$default_web_browser_cmd" && chmod +x "$_"
 
-cat <<-EOF >"$DEFAULT_WEB_BROWSER_CMD"
+cat <<-EOF >"$default_web_browser_cmd"
 #!/bin/sh
-/var/lib/flatpak/exports/bin/org.chromium.Chromium "$@" &
+"/var/lib/flatpak/exports/bin/$default_web_browser" "$@" &
 EOF
 
 # https://wiki.debian.org/DebianAlternatives
-sudo update-alternatives --install /usr/bin/www-browser www-browser "$DEFAULT_WEB_BROWSER_CMD" 255
-sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser "$DEFAULT_WEB_BROWSER_CMD" 255
+sudo update-alternatives --install /usr/bin/www-browser www-browser "$default_web_browser_cmd" 255
+sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser "$default_web_browser_cmd" 255
 find /etc/alternatives -type l -ls | awk 'BEGIN{OFS="\t"} /browser/ {print $11,$13}'
 
-echo '===> Set default terminal emulator'
+echo '===> Use alacritty as default terminal emulator'
 
-sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/alacritty 255
+default_terminal_emulator=/usr/bin/alacritty
+
+sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator "$default_terminal_emulator" 255
 find /etc/alternatives -type l -ls | awk 'BEGIN{OFS="\t"} /terminal/ {print $11,$13}'
 
-echo '===> Set default vim'
+echo '===> Use neovim as default vim'
 
-sudo update-alternatives --install /usr/bin/vim vim "$(which nvim)" 255
+default_vim="$(which nvim)"
+
+sudo update-alternatives --install /usr/bin/vim vim "$default_vim" 255
 find /etc/alternatives -type l -ls | awk 'BEGIN{OFS="\t"} /vim$/ {print $11,$13}'
 
-echo '===> Set desktop manager'
+echo '===> Use lightdm as desktop manager'
 
 sudo apt install --yes lightdm slick-greeter lightdm-settings
 sudo dpkg-reconfigure lightdm && echo 'ok'
