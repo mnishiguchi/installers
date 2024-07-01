@@ -104,12 +104,9 @@ begin_step 'Install apps with flatpak'
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 flathub_packages=(
-  com.brave.Browser
-  com.calibre_ebook.calibre
   com.discordapp.Discord
   com.slack.Slack
   com.uploadedlobster.peek
-  org.chromium.Chromium
   org.flameshot.Flameshot
   org.gnome.World.PikaBackup
 )
@@ -133,19 +130,6 @@ begin_step 'Install FiraCodeNerdFont'
 
 ok_step
 
-begin_step 'Install elixir'
-
-"$this_dir/debian/install_elixir.sh"
-"$this_dir/debian/install_nerves_systems.sh"
-
-ok_step
-
-begin_step 'Install vscodium'
-
-"$this_dir/debian/install_vscodium.sh"
-
-ok_step
-
 begin_step 'Install Docker'
 
 "$this_dir/debian/docker/install_docker_engine.sh"
@@ -165,37 +149,6 @@ ok_step
 begin_step 'Install auto-cpufreq'
 
 "$this_dir/shared/install_auto_cpufreq.sh"
-
-ok_step
-
-begin_step 'Use Brave as default web browser'
-
-default_web_browser=com.brave.Browser
-default_web_browser_desktop=com.brave.Browser.desktop
-
-# https://wiki.debian.org/DefaultWebBrowser
-xdg-settings set default-web-browser "$default_web_browser_desktop"
-xdg-mime default "$default_web_browser_desktop" x-scheme-handler/https x-scheme-handler/http
-
-if ! xdg-settings check default-web-browser "$default_web_browser_desktop"; then
-  echo "warning: couldn't set default web browser to $default_web_browser_desktop"
-fi
-
-echo "default web browser: $(xdg-settings get default-web-browser)"
-
-# Create a custom script that launches my desired web browser
-default_web_browser_cmd="$HOME/.local/bin/default-www-browser"
-touch "$default_web_browser_cmd" && chmod +x "$_"
-
-cat <<-EOF >"$default_web_browser_cmd"
-#!/bin/sh
-"/var/lib/flatpak/exports/bin/$default_web_browser" "$@" &
-EOF
-
-# https://wiki.debian.org/DebianAlternatives
-sudo update-alternatives --install /usr/bin/www-browser www-browser "$default_web_browser_cmd" 255
-sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser "$default_web_browser_cmd" 255
-find /etc/alternatives -type l -ls | awk 'BEGIN{OFS="\t"} /www-browser/ {print $11,$13}'
 
 ok_step
 
