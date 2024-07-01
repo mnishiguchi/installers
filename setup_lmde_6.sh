@@ -73,7 +73,8 @@ ok_step
 
 begin_step 'Install asdf'
 
-"$this_dir/shared/install_asdf.sh"
+# we want to source this script so ASDF_DIR gets available here
+source "$this_dir/shared/install_asdf.sh"
 source "${ASDF_DIR}/asdf.sh"
 
 ok_step
