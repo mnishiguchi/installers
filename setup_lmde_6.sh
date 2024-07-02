@@ -104,8 +104,6 @@ begin_step 'Install apps with flatpak'
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 flathub_packages=(
-  com.discordapp.Discord
-  com.slack.Slack
   com.uploadedlobster.peek
   org.flameshot.Flameshot
   org.gnome.World.PikaBackup
