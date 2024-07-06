@@ -84,24 +84,7 @@ echo '===> Install dotfiles'
 
 echo '===> Install asdf'
 
-"$this_dir/shared/install_asdf.sh"
-source "${ASDF_DIR}/asdf.sh"
-
-echo '===> Install asdf plugins'
-# to manage multiple runtime versions
-
-asdf_plugins=(
-  neovim
-  nodejs
-)
-
-for plugin in "${asdf_plugins[@]}"; do
-  asdf plugin add "$plugin" || true
-  asdf install "$plugin" latest
-  asdf global "$plugin" latest
-done
-
-asdf list
+source "$this_dir/shared/install_asdf.sh"
 
 echo '===> Install packages with flatpak'
 # to get latest standalone apps

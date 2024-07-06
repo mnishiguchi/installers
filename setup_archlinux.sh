@@ -16,7 +16,7 @@ echo '===> Install package managers'
 sudo pacman -S --needed --noconfirm flatpak
 
 # https://asdf-vm.com
-./shared/install_asdf.sh
+source ./shared/install_asdf.sh
 
 # https://github.com/Jguer/yay#installation
 YAY_SRC_DIR="$HOME/Downloads/yay"
@@ -111,31 +111,3 @@ sudo pacman -S --needed --noconfirm \
 echo '===> Install greenclip'
 
 ./shared/install_greenclip.sh
-
-echo '===> Install asdf plugins'
-
-# https://github.com/asdf-vm/asdf-erlang
-sudo pacman -S --needed --noconfirm \
-  base-devel \
-  ncurses \
-  glu mesa wxwidgets-gtk3 libpng \
-  libssh \
-  unixodbc \
-  libxslt fop
-
-# https://github.com/asdf-vm/asdf-elixir
-sudo pacman -S --needed --noconfirm unzip
-
-asdf_plugins=(
-  erlang
-  elixir
-  nodejs
-)
-
-for plugin in "${asdf_plugins[@]}"; do
-  asdf plugin add "$plugin"
-  asdf install "$plugin" latest
-  asdf global "$plugin" latest
-done
-
-asdf list

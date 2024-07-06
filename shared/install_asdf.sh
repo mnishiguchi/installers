@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-export ASDF_DIR="${ASDF_DIR:-$XDG_CONFIG_HOME/.asdf}"
+export ASDF_DIR="${ASDF_DIR:-HOME/.asdf}"
 
 if [[ -d "$ASDF_DIR" ]]; then
   echo "asdf already installed at ${ASDF_DIR}"

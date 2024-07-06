@@ -40,36 +40,11 @@ main() {
     ./shared/install_dotfiles.sh
 
     echo '===> Install asdf'
-    ./shared/install_asdf.sh
+    source ./shared/install_asdf.sh
 
     echo '===> Install FiraCodeNerdFont'
     ./shared/install_nerd_fonts.sh
-
-    echo '===> Install elixir'
-    ./debian/install_elixir.sh
-
-    echo '===> Install nerves'
-    ./debian/install_nerves_systems.sh
-
-    echo '===> Install vscodium'
-    ./debian/install_vscodium.sh
   )
-
-  echo '===> Install asdf plugins'
-  # to manage multiple runtime versions
-
-  ASDF_PLUGINS=(
-    neovim
-    nodejs
-  )
-
-  for plugin in "${ASDF_PLUGINS[@]}"; do
-    asdf plugin add "$plugin" || true
-    asdf install "$plugin" latest
-    asdf global "$plugin" latest
-  done
-
-  asdf list
 
   echo '===> Install packages with flatpak'
   # to get latest standalone apps

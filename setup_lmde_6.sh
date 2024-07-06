@@ -73,27 +73,8 @@ ok_step
 
 begin_step 'Install asdf'
 
-# we want to source this script so ASDF_DIR gets available here
+# source this script so asdf variables get available here
 source "$this_dir/shared/install_asdf.sh"
-source "${ASDF_DIR}/asdf.sh"
-
-ok_step
-
-begin_step 'Install asdf plugins'
-# to manage multiple runtime versions
-
-asdf_plugins=(
-  neovim
-  nodejs
-)
-
-for plugin in "${asdf_plugins[@]}"; do
-  asdf plugin add "$plugin" || true
-  asdf install "$plugin" latest
-  asdf global "$plugin" latest
-done
-
-asdf list
 
 ok_step
 

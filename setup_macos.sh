@@ -205,66 +205,7 @@ ok_step
 
 begin_step 'Installing asdf...'
 
-"$this_dir/shared/install_asdf.sh"
-
-ok_step
-
-begin_step 'Installing asdf plugins...'
-
-brew bundle --file=- <<EOF
-# https://github.com/asdf-vm/asdf-erlang
-brew "autoconf"
-brew "openssl"
-brew "wxwidgets"
-brew "libxslt"
-brew "fop"
-
-# https://hexdocs.pm/nerves/installation.html
-brew "fwup"
-brew "squashfs"
-brew "coreutils"
-brew "xz"
-brew "pkg-config"
-
-# https://github.com/rbenv/ruby-build/discussions/2118
-brew "libyaml"
-EOF
-
-asdf_plugins=(
-  erlang
-  elixir
-  nodejs
-  ruby
-)
-
-add_or_update_asdf_plugin() {
-  local plugin_name="$1"
-
-  if ! asdf plugin-list | grep -Fq "$plugin_name"; then
-    asdf plugin-add "$plugin_name" >/dev/null
-  else
-    asdf plugin-update "$plugin_name" >/dev/null
-  fi
-}
-
-install_asdf_language() {
-  local language="$1"
-  local version
-  version="$(asdf latest "$language")"
-
-  if ! asdf list "$language" | grep -Fq "$version"; then
-    asdf install "$language" "$version" >/dev/null
-    asdf global "$language" "$version" >/dev/null
-  fi
-}
-
-for asdf_plugin in "${asdf_plugins[@]}"; do
-  add_or_update_asdf_plugin "$asdf_plugin"
-  install_asdf_language "$asdf_plugin"
-done
-
-echo
-asdf list
+source "$this_dir/shared/install_asdf.sh"
 
 ok_step
 
