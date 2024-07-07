@@ -114,11 +114,6 @@ for pkg in "${flathub_packages[@]}"; do
   flatpak install -y --noninteractive flathub "$pkg"
 done
 
-echo '===> Install package with npm'
-
-npm install -g diff-so-fancy
-npm install -g git-open
-
 echo '===> Install FiraCodeNerdFont'
 
 "$this_dir/shared/install_nerd_fonts.sh"

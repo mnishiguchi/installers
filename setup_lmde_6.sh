@@ -96,13 +96,6 @@ done
 
 ok_step
 
-begin_step 'Install package with npm'
-
-npm install -g diff-so-fancy
-npm install -g git-open
-
-ok_step
-
 begin_step 'Install FiraCodeNerdFont'
 
 "$this_dir/shared/install_nerd_fonts.sh"
