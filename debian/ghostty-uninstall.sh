@@ -2,7 +2,7 @@
 #
 # This script uninstalls Ghostty and removes all related files.
 #
-# Removes the Ghostty binary, configuration, desktop entry, and icons.
+# Removes the Ghostty binary, configuration, desktop entries, and icons.
 
 set -eu
 
@@ -13,19 +13,23 @@ echo_heading() {
 
 # Print success message
 echo_success() {
-  echo -e " \033[32m\u2714 $1\033[0m"
+  echo -e " \033[32m✔ $1\033[0m"
 }
 
 # Print failure message
 echo_failure() {
-  echo -e " \033[31m\u2718 $1\033[0m"
+  echo -e " \033[31m✖ $1\033[0m"
 }
 
 main() {
   INSTALL_DIR="$HOME/.config/ghostty/ghostty"
-  DESKTOP_FILE="$HOME/.local/share/applications/Ghostty.desktop"
   EXEC_PATH="$HOME/.local/bin/ghostty"
   ICON_PATH="$HOME/.local/share/icons/hicolor/128x128/apps/com.mitchellh.ghostty.png"
+  DESKTOP_ENTRIES=(
+    "$HOME/.local/share/applications/com.mitchellh.ghostty.desktop"
+    "$HOME/.local/share/applications/Ghostty.desktop"
+    "$HOME/.local/share/kio/servicemenus/com.mitchellh.ghostty.desktop"
+  )
 
   echo_heading "Uninstalling Ghostty..."
 
@@ -55,12 +59,14 @@ main() {
     echo_success "Source directory not found: $INSTALL_DIR"
   fi
 
-  # Remove desktop entry
-  if [[ -f "$DESKTOP_FILE" ]]; then
-    rm -f "$DESKTOP_FILE" && echo_success "Removed desktop entry: $DESKTOP_FILE"
-  else
-    echo_success "Desktop entry not found: $DESKTOP_FILE"
-  fi
+  # Remove all desktop entries
+  for DESKTOP_FILE in "${DESKTOP_ENTRIES[@]}"; do
+    if [[ -f "$DESKTOP_FILE" ]]; then
+      rm -f "$DESKTOP_FILE" && echo_success "Removed desktop entry: $DESKTOP_FILE"
+    else
+      echo_success "Desktop entry not found: $DESKTOP_FILE"
+    fi
+  done
 
   # Remove icon
   if [[ -f "$ICON_PATH" ]]; then

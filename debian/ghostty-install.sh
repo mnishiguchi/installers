@@ -2,7 +2,9 @@
 #
 # This script automates the installation and setup of Ghostty terminal from source.
 #
-# Prerequisites: Zig, Git, and required GTK libraries.
+# Requirements:
+# - OS: Debian-based Linux distributions
+# - Dependencies: Zig, Git and GTK libraries (libgtk-4-dev, libadwaita-1-dev)
 
 set -eu
 
@@ -23,15 +25,9 @@ echo_failure() {
 
 main() {
   GHOSTTY_REPO="https://github.com/ghostty-org/ghostty"
+  INSTALL_PREFIX="$HOME/.local"
   INSTALL_DIR="$HOME/.config/ghostty/ghostty"
   CONFIG_FILE="$HOME/.config/ghostty/config"
-  THEMES_SRC="$INSTALL_DIR/zig-out/share/ghostty/themes"
-  THEMES_DEST="$HOME/.config/ghostty/themes"
-  EXEC_PATH="$HOME/.local/bin/ghostty"
-  DESKTOP_FILE_SRC="$INSTALL_DIR/zig-out/share/applications/com.mitchellh.ghostty.desktop"
-  DESKTOP_FILE_DEST="$HOME/.local/share/applications/Ghostty.desktop"
-  ICON_SRC="$INSTALL_DIR/zig-out/share/icons/hicolor/128x128/apps/com.mitchellh.ghostty.png"
-  ICON_DEST="$HOME/.local/share/icons/hicolor/128x128/apps/com.mitchellh.ghostty.png"
   DEFAULT_THEME="Dracula+"
   DEFAULT_FONT="FiraCode Nerd Font"
 
@@ -64,67 +60,20 @@ main() {
     cd "$INSTALL_DIR"
   fi
 
-  echo_heading "Building Ghostty..."
-  if zig build -Doptimize=ReleaseFast; then
-    echo_success "Ghostty built successfully."
+  echo_heading "Building and installing Ghostty..."
+  if zig build -p "$INSTALL_PREFIX" -Doptimize=ReleaseFast; then
+    echo_success "Ghostty built and installed at $INSTALL_PREFIX."
   else
     echo_failure "Failed to build Ghostty."
     exit 1
   fi
 
   echo_heading "Verifying Ghostty binary..."
-  if "$INSTALL_DIR/zig-out/bin/ghostty" --help >/dev/null 2>&1; then
+  if "$INSTALL_PREFIX/bin/ghostty" --help >/dev/null 2>&1; then
     echo_success "Ghostty binary verified."
   else
     echo_failure "Error: Ghostty binary did not build or run correctly."
     exit 1
-  fi
-
-  echo_heading "Installing Ghostty binary..."
-  mkdir -p "$HOME/.local/bin"
-  if cp "$INSTALL_DIR/zig-out/bin/ghostty" "$EXEC_PATH"; then
-    echo_success "Binary installed at $EXEC_PATH."
-  else
-    echo_failure "Failed to install binary."
-    exit 1
-  fi
-
-  echo_heading "Installing desktop entry..."
-  mkdir -p "$(dirname "$DESKTOP_FILE_DEST")"
-  if cp "$DESKTOP_FILE_SRC" "$DESKTOP_FILE_DEST"; then
-    echo_success "Desktop entry installed at $DESKTOP_FILE_DEST."
-  else
-    echo_failure "Failed to install desktop entry."
-    exit 1
-  fi
-
-  echo_heading "Installing icon..."
-  mkdir -p "$(dirname "$ICON_DEST")"
-  if cp "$ICON_SRC" "$ICON_DEST"; then
-    echo_success "Icon installed at $ICON_DEST."
-  else
-    echo_failure "Failed to install icon."
-    exit 1
-  fi
-
-  echo_heading "Refreshing application menu..."
-  if update-desktop-database "$HOME/.local/share/applications/"; then
-    echo_success "Application menu refreshed."
-  else
-    echo_failure "Failed to refresh application menu."
-  fi
-
-  echo_heading "Setting up Ghostty themes..."
-  mkdir -p "$THEMES_DEST"
-  if [[ -d "$THEMES_SRC" ]]; then
-    if cp -r "$THEMES_SRC"/* "$THEMES_DEST/"; then
-      echo_success "Themes copied to $THEMES_DEST."
-    else
-      echo_failure "Failed to copy themes."
-      exit 1
-    fi
-  else
-    echo_heading "Warning: Themes source directory not found. Skipping theme setup."
   fi
 
   echo_heading "Creating default configuration..."
@@ -148,14 +97,44 @@ EOL
   echo_heading "Current configuration:"
   cat "$CONFIG_FILE"
 
-  echo_heading "Cleaning up build directory..."
-  if rm -rf "$INSTALL_DIR/zig-out"; then
-    echo_success "Build directory removed."
+  echo_heading "Installing and renaming desktop entry..."
+  ORIGINAL_DESKTOP_FILE="$INSTALL_PREFIX/share/applications/com.mitchellh.ghostty.desktop"
+  TARGET_DESKTOP_FILE="$HOME/.local/share/applications/Ghostty.desktop"
+
+  # Renaming the desktop entry aligns with naming conventions your application
+  # menu might expect and avoids potential conflicts. This approach ensures the
+  # app launcher works consistently.
+  if [[ -f "$ORIGINAL_DESKTOP_FILE" ]]; then
+    mkdir -p "$(dirname "$TARGET_DESKTOP_FILE")"
+    if mv "$ORIGINAL_DESKTOP_FILE" "$TARGET_DESKTOP_FILE"; then
+      echo_success "Desktop entry installed and renamed to: $TARGET_DESKTOP_FILE"
+    else
+      echo_failure "Failed to rename desktop entry."
+      exit 1
+    fi
   else
-    echo_failure "Failed to remove build directory."
+    echo_failure "Original desktop entry not found: $ORIGINAL_DESKTOP_FILE"
+    exit 1
   fi
 
-  echo_heading "Installation complete. Ghostty is ready to use."
+  echo_heading "Refreshing application menu..."
+  if update-desktop-database "$HOME/.local/share/applications/"; then
+    echo_success "Application menu refreshed."
+  else
+    echo_failure "Failed to refresh application menu."
+  fi
+
+  echo_heading "Installation complete."
+  if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo_heading "Note: $HOME/.local/bin is not in your PATH."
+    echo -e "To add it, you can run the following command:\n"
+    echo "    echo 'export PATH=\"$HOME/.local/bin:\$PATH\"' >> ~/.bashrc && source ~/.bashrc"
+    echo -e "\nRestart your terminal or source your shell configuration to apply changes."
+  else
+    echo_success "$HOME/.local/bin is already in your PATH."
+  fi
+
+  echo_heading "Ghostty is ready to use."
 }
 
 main "$@"
