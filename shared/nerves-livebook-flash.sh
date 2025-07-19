@@ -85,9 +85,14 @@ select_mix_target() {
 }
 
 download_firmware() {
+  FW_IMAGE="./nerves_livebook_${MIX_TARGET}.fw"
+  if [ -f "$FW_IMAGE" ]; then
+    echo_success "Found existing firmware: ${FW_IMAGE}"
+    return
+  fi
+
   echo_heading "Downloading firmware for ${MIX_TARGET}"
   local url="https://github.com/nerves-livebook/nerves_livebook/releases/latest/download/nerves_livebook_${MIX_TARGET}.fw"
-  FW_IMAGE="$TMPDIR/nerves_livebook_${MIX_TARGET}.fw"
   if ! curl -fsSL "$url" -o "$FW_IMAGE"; then
     echo_error "Failed downloading ${url}"
     exit 1
@@ -185,9 +190,6 @@ main() {
     exit 1
     ;;
   esac
-
-  TMPDIR=$(mktemp -d)
-  trap 'echo_success "Removing temporary directory: $TMPDIR"; rm -rf "$TMPDIR"' EXIT
 
   ensure_fwup
   ensure_curl
