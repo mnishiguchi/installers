@@ -1,77 +1,59 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# This script uninstalls diff-so-fancy by removing the symlink in ~/.local/bin
-# and the cloned repo in ~/.config/diff-so-fancy.
-# It also shows the current Git config for core.pager and interactive.diffFilter
-# and verifies that the `diff-so-fancy` command is no longer found in $PATH.
+# Uninstall diff-so-fancy:
+# - Remove ~/.local/bin/diff-so-fancy symlink (or file, with backup)
+# - Remove ~/.local/opt/diff-so-fancy repo
+# - Show related Git config entries (for manual cleanup if desired)
+#
+set -euo pipefail
 
-set -eu
+DSF_DIR="${HOME}/.local/opt/diff-so-fancy"
+EXEC_PATH="${HOME}/.local/bin/diff-so-fancy"
 
-# Print headings
-echo_heading() {
-  echo -e "\n\033[34m$1\033[0m"
-}
-
-# Print success message
-echo_success() {
-  echo -e " \033[32m✔ $1\033[0m"
-}
-
-# Print failure message
-echo_failure() {
-  echo -e " \033[31m✖ $1\033[0m"
-}
+echo_heading() { echo -e "\n\033[34m$1\033[0m"; }
+echo_success() { echo -e " \033[32m✔ $1\033[0m"; }
+echo_warn() { echo -e " \033[33m▲ $1\033[0m"; }
+echo_failure() { echo -e " \033[31m✖ $1\033[0m"; }
 
 main() {
-  INSTALL_DIR="$HOME/.config/diff-so-fancy"
-  EXEC_PATH="$HOME/.local/bin/diff-so-fancy"
-
-  echo_heading "Uninstalling diff-so-fancy..."
-
-  # Remove symlink in ~/.local/bin
-  if [[ -L "$EXEC_PATH" ]]; then
-    if rm "$EXEC_PATH"; then
-      echo_success "Removed symlink: $EXEC_PATH"
-    else
-      echo_failure "Failed to remove symlink: $EXEC_PATH"
-    fi
+  echo_heading "Removing launcher..."
+  if [ -L "${EXEC_PATH}" ]; then
+    rm -f "${EXEC_PATH}"
+    echo_success "Removed symlink: ${EXEC_PATH}"
+  elif [ -f "${EXEC_PATH}" ]; then
+    local bak="${EXEC_PATH}.bak.$(date +%s)"
+    mv "${EXEC_PATH}" "${bak}"
+    echo_warn "Found a regular file at EXEC_PATH. Moved to: ${bak}"
   else
-    echo_success "Symlink not found: $EXEC_PATH"
+    echo_success "No symlink or file at: ${EXEC_PATH}"
   fi
 
-  # Remove the cloned repo from ~/.config/diff-so-fancy
-  if [[ -d "$INSTALL_DIR" ]]; then
-    if rm -rf "$INSTALL_DIR"; then
-      echo_success "Removed directory: $INSTALL_DIR"
-    else
-      echo_failure "Failed to remove directory: $INSTALL_DIR"
-    fi
+  echo_heading "Removing cloned repository..."
+  if [ -d "${DSF_DIR}" ]; then
+    rm -rf "${DSF_DIR}"
+    echo_success "Removed directory: ${DSF_DIR}"
   else
-    echo_success "Directory not found: $INSTALL_DIR"
+    echo_success "Directory not found: ${DSF_DIR}"
   fi
 
-  # Check if diff-so-fancy still exists in $PATH
   echo_heading "Verifying command availability..."
-  if command -v diff-so-fancy &>/dev/null; then
-    echo_failure "diff-so-fancy is still found in your PATH!"
-    echo "There may be another installation or leftover symlink. You may need to remove it manually."
+  if command -v diff-so-fancy >/dev/null 2>&1; then
+    echo_warn "diff-so-fancy is still on PATH (another install may exist)."
   else
-    echo_success "diff-so-fancy is no longer on your PATH."
+    echo_success "diff-so-fancy not found on PATH."
   fi
 
-  # Show current Git config (if user wants to remove references manually)
-  echo_heading "Checking Git config (if configured for diff-so-fancy):"
+  echo_heading "Related Git config (for manual cleanup if needed):"
   current_pager="$(git config --global core.pager 2>/dev/null || true)"
   current_diff_filter="$(git config --global interactive.diffFilter 2>/dev/null || true)"
+  echo "  core.pager:             ${current_pager:-<unset>}"
+  echo "  interactive.diffFilter: ${current_diff_filter:-<unset>}"
+  echo
+  echo "To unset:"
+  echo "  git config --global --unset core.pager             # if it references diff-so-fancy"
+  echo "  git config --global --unset interactive.diffFilter # if used before"
 
-  echo "  - Git core.pager:             '${current_pager}'"
-  echo "  - Git interactive.diffFilter: '${current_diff_filter}'"
-
-  echo_heading "If these entries reference diff-so-fancy, you may want to remove them manually, e.g.:"
-  echo "  git config --global --unset core.pager"
-  echo "  git config --global --unset interactive.diffFilter"
-
-  echo_heading "Uninstallation complete."
+  echo_heading "Uninstall complete."
 }
 
 main "$@"
