@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -eu
 
-CODE_DIR="$HOME/Code"
-mkdir -p "$CODE_DIR"
+PROJECTS_DIR="$HOME/Projects"
+mkdir -p "$PROJECTS_DIR"
 
-if [ -d "$CODE_DIR/nerves_systems" ]; then
+if [ -d "$PROJECTS_DIR/nerves_systems" ]; then
   echo "warning: already exists -- skipping"
   exit 0
 fi
@@ -56,6 +56,6 @@ sudo apt install --yes \
   wget
 
 (
-  cd "$CODE_DIR"
+  cd "$PROJECTS_DIR"
   git clone https://github.com/nerves-project/nerves_systems.git
 )
