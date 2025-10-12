@@ -46,7 +46,7 @@ sudo apt install \
   bitwise \
   delta \
   direnv \
-  exa \
+  eza \
   fd-find \
   gnupg \
   htop \
