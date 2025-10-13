@@ -189,6 +189,9 @@ action = "Copy"
 key = "V"
 mods = "Control|Shift"
 action = "Paste"
+
+[window]
+dimensions = { columns = 120, lines = 80 }
 EOL
     then
       echo_success "Default configuration created at $CONFIG_FILE."
