@@ -43,6 +43,7 @@ apt_essentials() {
   sudo apt update -yq
   sudo apt upgrade -yq || true
   sudo apt install "${APT_FLAGS[@]}" \
+    alacritty \
     bitwise \
     curl \
     delta \
@@ -112,15 +113,6 @@ install_nerd_font_firacode() {
   # Cache if available; otherwise silently continue
   command -v fc-cache >/dev/null 2>&1 && fc-cache -f >/dev/null || true
   ok "FiraCode Nerd Font installed"
-}
-
-install_alacritty() {
-  say "Install Alacritty"
-  if has alacritty; then
-    ok "alacritty already installed"
-    return
-  fi
-  run_installer "$INSTALLERS_DIR/debian/alacritty-install-apt.sh"
 }
 
 install_yazi() {
