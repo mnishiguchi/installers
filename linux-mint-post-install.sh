@@ -49,6 +49,7 @@ apt_essentials() {
     delta \
     direnv \
     eza \
+    fzf \
     gawk \
     git \
     gnupg \
@@ -127,16 +128,6 @@ install_yazi() {
 install_starship() {
   say "Install starship"
   run_installer "$INSTALLERS_DIR/shared/starship-install.sh"
-}
-
-install_fzf() {
-  say "Install fzf"
-  run_installer "$INSTALLERS_DIR/shared/fzf-install.sh"
-}
-
-install_ble() {
-  say "Install ble.sh"
-  run_installer "$INSTALLERS_DIR/shared/ble-install.sh"
 }
 
 install_lazygit() {
@@ -231,8 +222,6 @@ main() {
   install_alacritty
   install_yazi
   install_starship
-  install_fzf
-  install_ble
   install_lazygit
   install_neovim
 
