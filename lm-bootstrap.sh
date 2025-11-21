@@ -92,6 +92,18 @@ apt_erlang_build_deps() {
   fi
 }
 
+apt_postgres_client_deps() {
+  say "APT: PostgreSQL client libraries"
+
+  if sudo apt-get install "${APT_FLAGS[@]}" \
+    libpq-dev \
+    postgresql-client; then
+    ok "PostgreSQL client dev packages installed"
+  else
+    warn "PostgreSQL client install failed; Ruby pg gem may fail to build"
+  fi
+}
+
 install_dotfiles() {
   say "Setup dotfiles"
   local dotfiles_dir="$SCRIPT_DIR/../dotfiles"
@@ -230,6 +242,7 @@ main() {
   create_dirs
   apt_essentials
   apt_erlang_build_deps
+  apt_postgres_client_deps
   install_dotfiles
   install_diff_so_fancy
   install_nerd_font_firacode
