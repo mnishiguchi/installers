@@ -285,8 +285,8 @@ section_extras() {
     return
   fi
 
-  run_script "$SCRIPT_DIR/shared/diff-so-fancy-install.sh"
-  run_script "$SCRIPT_DIR/shared/nerd-fonts-install.sh"
+  run_script "$SCRIPT_DIR/user/diff-so-fancy-install.sh"
+  run_script "$SCRIPT_DIR/user/nerd-fonts-install.sh"
   ok "user-level extras restored"
 }
 
@@ -459,7 +459,7 @@ install_1password() {
   elif [[ "$CHECK" == true ]]; then
     mark_drift "1Password is not installed"
   else
-    run_script "$SCRIPT_DIR/shared/1password-install.sh"
+    run_script "$SCRIPT_DIR/debian/1password-install.sh"
   fi
 }
 
