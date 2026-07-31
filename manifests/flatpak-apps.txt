@@ -1,0 +1,4 @@
+# Use Flatpak as the canonical source for these desktop applications.
+com.discordapp.Discord
+com.slack.Slack
+org.gnome.World.PikaBackup

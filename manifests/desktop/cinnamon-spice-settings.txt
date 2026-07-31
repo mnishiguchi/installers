@@ -1,0 +1,14 @@
+calendar@cinnamon.org/13.json
+cornerbar@cinnamon.org/14.json
+favorites@cinnamon.org/9.json
+grouped-window-list@cinnamon.org/2.json
+menu@cinnamon.org/0.json
+multicore-sys-monitor@ccadeptic23/multicore-sys-monitor@ccadeptic23.json
+multicore-sys-monitor@ccadeptic23/prefs.json
+network@cinnamon.org/network@cinnamon.org.json
+notifications@cinnamon.org/notifications@cinnamon.org.json
+power@cinnamon.org/power@cinnamon.org.json
+printers@cinnamon.org/6.json
+sound150@claudiux/sound150@claudiux.json
+sound@cinnamon.org/sound@cinnamon.org.json
+workspace-switcher@cinnamon.org/16.json
