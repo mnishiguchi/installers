@@ -19,12 +19,22 @@ fail() {
   exit 1
 }
 
+validate_paths() {
+  case "$INSTALL_ROOT" in
+    "" | / | "$HOME") fail "refusing unsafe INSTALL_ROOT: '${INSTALL_ROOT}'" ;;
+  esac
+  case "$BIN_DIR" in
+    "" | /) fail "refusing unsafe BIN_DIR: '${BIN_DIR}'" ;;
+  esac
+}
+
 main() {
+  validate_paths
   echo_h "Removing Neovim files…"
 
   # Remove symlink if it points to our install
   if [[ -L "$NVIM_LINK" ]]; then
-    link_target="$(readlink -f "$NVIM_LINK")"
+    link_target="$(readlink -m "$NVIM_LINK")"
     if [[ "$link_target" == "$NVIM_TARGET" ]]; then
       rm -f "$NVIM_LINK"
       ok "removed symlink: $NVIM_LINK"

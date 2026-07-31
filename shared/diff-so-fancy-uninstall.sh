@@ -21,7 +21,8 @@ main() {
     rm -f "${EXEC_PATH}"
     echo_success "Removed symlink: ${EXEC_PATH}"
   elif [ -f "${EXEC_PATH}" ]; then
-    local bak="${EXEC_PATH}.bak.$(date +%s)"
+    local bak
+    bak="${EXEC_PATH}.bak.$(date +%s)"
     mv "${EXEC_PATH}" "${bak}"
     echo_warn "Found a regular file at EXEC_PATH. Moved to: ${bak}"
   else

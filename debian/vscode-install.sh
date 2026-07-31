@@ -8,6 +8,16 @@
 #
 set -euo pipefail
 
+tmp_dir=""
+
+cleanup() {
+  if [ -n "$tmp_dir" ]; then
+    rm -rf -- "$tmp_dir"
+  fi
+}
+
+trap cleanup EXIT
+
 echo_heading() { echo -e "\n\033[34m$1\033[0m"; }
 echo_success() { echo -e " \033[32m✔ $1\033[0m"; }
 echo_warn() { echo -e " \033[33m▲ $1\033[0m"; }
@@ -179,7 +189,8 @@ main() {
   install_deb "${deb_path}"
 
   echo_heading "Cleaning up temporary files..."
-  rm -rf "${tmp_dir}"
+  rm -rf -- "${tmp_dir}"
+  tmp_dir=""
   echo_success "Temporary files removed."
 
   verify_install

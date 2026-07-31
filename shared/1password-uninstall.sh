@@ -49,7 +49,8 @@ parse_args() {
         exit 0
         ;;
       *)
-        echo_warn "Unknown option: $1"
+        echo_failure "Unknown option: $1"
+        exit 2
         ;;
     esac
     shift
@@ -71,7 +72,7 @@ remove_package() {
       echo_success "Removed package: $PKG"
     fi
     $SUDO apt-get autoremove -y >/dev/null || true
-  } else {
+  else
     echo_success "Package not installed: $PKG"
   fi
 }
@@ -152,8 +153,8 @@ summary() {
 }
 
 main() {
-  require_sudo
   parse_args "$@"
+  require_sudo
   remove_package
   remove_repo_and_keys
   purge_user_data

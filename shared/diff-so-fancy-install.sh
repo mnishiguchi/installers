@@ -54,7 +54,7 @@ main() {
 
   echo_heading "Validating PATH and command..."
   if ! command -v diff-so-fancy >/dev/null 2>&1; then
-    echo_warn "~/.local/bin may not be on your PATH."
+    echo_warn "$HOME/.local/bin may not be on your PATH."
     echo "Add this to your shell rc file if needed:"
     echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
   else
@@ -66,4 +66,3 @@ main() {
 }
 
 main "$@"
-

@@ -19,11 +19,23 @@ DESKTOP_FILE="/usr/share/applications/android-studio.desktop"
 SUDO=""
 TAR_PATH=""
 DOWNLOAD_TMP=""
+EXTRACT_TMP=""
 
 echo_heading() { echo -e "\n\033[34m$1\033[0m"; }
 echo_success() { echo -e " \033[32m✔ $1\033[0m"; }
 echo_warn() { echo -e " \033[33m▲ $1\033[0m"; }
 echo_failure() { echo -e " \033[31m✖ $1\033[0m"; }
+
+cleanup() {
+  if [ -n "$DOWNLOAD_TMP" ]; then
+    rm -f -- "$DOWNLOAD_TMP"
+  fi
+  if [ -n "$EXTRACT_TMP" ]; then
+    rm -rf -- "$EXTRACT_TMP"
+  fi
+}
+
+trap cleanup EXIT
 
 require_sudo() {
   if [ "${EUID}" -ne 0 ]; then
@@ -52,13 +64,13 @@ ensure_prereqs() {
 detect_latest_url() {
   # Explicit override wins
   if [ -n "${ANDROID_STUDIO_TAR_URL:-}" ]; then
-    echo_heading "Using ANDROID_STUDIO_TAR_URL from environment..."
-    echo "  $ANDROID_STUDIO_TAR_URL"
+    echo_heading "Using ANDROID_STUDIO_TAR_URL from environment..." >&2
+    echo "  $ANDROID_STUDIO_TAR_URL" >&2
     echo "$ANDROID_STUDIO_TAR_URL"
     return 0
   fi
 
-  echo_heading "Trying to auto-detect latest Android Studio tarball (Flathub)..."
+  echo_heading "Trying to auto-detect latest Android Studio tarball (Flathub)..." >&2
 
   # Flathub manifest for com.google.AndroidStudio (stable)
   local flathub_manifest
@@ -75,15 +87,15 @@ detect_latest_url() {
     )"
 
     if [ -n "$detected" ]; then
-      echo_success "Detected latest URL from Flathub:"
-      echo "  $detected"
+      echo_success "Detected latest URL from Flathub:" >&2
+      echo "  $detected" >&2
       echo "$detected"
       return 0
     fi
   fi
 
-  echo_warn "Auto-detection failed. Falling back to pinned URL:"
-  echo "  $ANDROID_STUDIO_TAR_URL_FALLBACK"
+  echo_warn "Auto-detection failed. Falling back to pinned URL:" >&2
+  echo "  $ANDROID_STUDIO_TAR_URL_FALLBACK" >&2
   echo "$ANDROID_STUDIO_TAR_URL_FALLBACK"
 }
 
@@ -118,33 +130,34 @@ pick_archive() {
 install_android_studio() {
   echo_heading "Extracting Android Studio archive..."
 
-  local tmp_dir
-  tmp_dir="$(mktemp -d -t android-studio-XXXXXX)"
+  EXTRACT_TMP="$(mktemp -d -t android-studio-XXXXXX)"
 
-  tar -xzf "$TAR_PATH" -C "$tmp_dir"
+  tar -xzf "$TAR_PATH" -C "$EXTRACT_TMP"
 
-  if [ ! -d "$tmp_dir/android-studio" ]; then
+  if [ ! -d "$EXTRACT_TMP/android-studio" ]; then
     echo_failure "Expected directory 'android-studio' not found in archive."
     echo "Extracted contents:"
-    ls -la "$tmp_dir"
+    ls -la "$EXTRACT_TMP"
     exit 1
   fi
 
   echo_heading "Installing to: $INSTALL_DIR"
 
   if [ -d "$INSTALL_DIR" ]; then
-    local backup="${INSTALL_DIR}.bak.$(date +%s)"
+    local backup
+    backup="${INSTALL_DIR}.bak.$(date +%s)"
     echo_warn "Existing installation detected. Moving to backup: $backup"
     $SUDO mv "$INSTALL_DIR" "$backup"
   fi
 
-  $SUDO mv "$tmp_dir/android-studio" "$INSTALL_DIR"
+  $SUDO mv "$EXTRACT_TMP/android-studio" "$INSTALL_DIR"
   echo_success "Installed Android Studio under $INSTALL_DIR"
 
-  rm -rf "$tmp_dir"
-
+  rm -rf -- "$EXTRACT_TMP"
+  EXTRACT_TMP=""
   if [ -n "$DOWNLOAD_TMP" ]; then
-    rm -f "$DOWNLOAD_TMP"
+    rm -f -- "$DOWNLOAD_TMP"
+    DOWNLOAD_TMP=""
   fi
 }
 
@@ -155,7 +168,8 @@ create_launcher_script() {
     if [ -L "$LAUNCHER_SCRIPT" ]; then
       $SUDO rm -f "$LAUNCHER_SCRIPT"
     else
-      local backup="${LAUNCHER_SCRIPT}.bak.$(date +%s)"
+      local backup
+      backup="${LAUNCHER_SCRIPT}.bak.$(date +%s)"
       echo_warn "Existing file at $LAUNCHER_SCRIPT. Moving to backup: $backup"
       $SUDO mv "$LAUNCHER_SCRIPT" "$backup"
     fi
@@ -213,10 +227,14 @@ post_install_message() {
 }
 
 main() {
+  local archive_path="${1:-}"
+  if [ "$#" -gt 1 ]; then
+    echo_failure "Usage: $0 [android-studio.tar.gz]"
+    exit 2
+  fi
+
   require_sudo
   ensure_prereqs
-
-  local archive_path="${1:-}"
   pick_archive "$archive_path"
   install_android_studio
   create_launcher_script

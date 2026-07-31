@@ -24,23 +24,24 @@ fi
 # ----------------------------
 # Options (defaults)
 # ----------------------------
-REMOVE_DATA=1            # remove /var/lib/docker & /var/lib/containerd by default
+REMOVE_DATA=0            # preserve /var/lib/docker & /var/lib/containerd by default
 REMOVE_GROUP=0           # remove the 'docker' group
 REMOVE_USER_FROM_GROUP=0 # remove current user from 'docker' group
 
 usage() {
   cat <<'EOF'
-Usage: docker_uninstall.sh [--keep-data[=true|false]]
+Usage: docker_uninstall.sh [--remove-data[=true|false]]
+                           [--keep-data[=true|false]]
                            [--remove-group[=true|false]]
                            [--remove-user-from-group[=true|false]]
                            [-h|--help]
 
-Stops and disables Docker services, purges Docker Engine packages,
-and removes data at /var/lib/docker and /var/lib/containerd (default behavior).
+Stops and disables Docker services and purges Docker Engine packages.
+Data under /var/lib/docker and /var/lib/containerd is preserved by default.
 
 Examples:
   ./docker_uninstall.sh
-  ./docker_uninstall.sh --keep-data
+  ./docker_uninstall.sh --remove-data
   ./docker_uninstall.sh --remove-group --remove-user-from-group
 EOF
 }
@@ -48,6 +49,8 @@ EOF
 parse_args() {
   while (("$#")); do
     case "$1" in
+    --remove-data | --remove-data=true) REMOVE_DATA=1 ;;
+    --remove-data=false) REMOVE_DATA=0 ;;
     --keep-data | --keep-data=true) REMOVE_DATA=0 ;;
     --keep-data=false) REMOVE_DATA=1 ;;
     --remove-group | --remove-group=true) REMOVE_GROUP=1 ;;
@@ -108,7 +111,7 @@ remove_data_dirs() {
     sudo rm -f /var/run/docker.sock 2>/dev/null || true
     echo_success "Data directories removed."
   else
-    echo_heading "Keeping data directories (--keep-data)."
+    echo_heading "Keeping Docker data directories."
     echo_success "Left /var/lib/docker and /var/lib/containerd intact."
   fi
 }

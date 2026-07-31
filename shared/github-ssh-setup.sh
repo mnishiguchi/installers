@@ -24,7 +24,7 @@ KEY_TYPE="ed25519"
 KEY_DIR="${HOME}/.ssh"
 KEY_NAME="id_ed25519"
 KEY_PATH="${KEY_DIR}/${KEY_NAME}"
-CLIP_CMD=""
+CLIP_CMD=()
 BROWSER_OPEN="yes"
 TEST_SSH="yes"
 
@@ -33,7 +33,7 @@ usage() {
   cat <<'USAGE'
 Usage:
   setup_github_ssh.sh [--comment "LMDE6 • Work Laptop"] [--key-name id_ed25519]
-                      [--no-browser] [--no-test] [--git auto|ask|skip]
+                      [--no-browser] [--no-test]
                       [-h|--help]
 
 Options:
@@ -56,13 +56,13 @@ require_cmd() {
 
 detect_clipboard() {
   if command -v wl-copy >/dev/null 2>&1; then
-    CLIP_CMD="wl-copy"
+    CLIP_CMD=(wl-copy)
   elif command -v xclip >/dev/null 2>&1; then
-    CLIP_CMD="xclip -selection clipboard"
+    CLIP_CMD=(xclip -selection clipboard)
   elif command -v xsel >/dev/null 2>&1; then
-    CLIP_CMD="xsel --clipboard --input"
+    CLIP_CMD=(xsel --clipboard --input)
   else
-    CLIP_CMD=""
+    CLIP_CMD=()
   fi
 }
 
@@ -86,10 +86,13 @@ generate_key() {
     read -r -p "Generate a new key with a different name? [y/N]: " ans
     if [ "${ans}" = "y" ] || [ "${ans}" = "Y" ]; then
       read -r -p "Enter new key name (basename only, e.g. id_ed25519_github): " newname
-      if [ -n "$newname" ]; then
-        KEY_NAME="$newname"
-        KEY_PATH="${KEY_DIR}/${KEY_NAME}"
+      if [ -z "$newname" ] || [ "$newname" != "$(basename -- "$newname")" ] ||
+        [ "$newname" = "." ] || [ "$newname" = ".." ]; then
+        err "Key name must be a non-empty basename."
+        exit 2
       fi
+      KEY_NAME="$newname"
+      KEY_PATH="${KEY_DIR}/${KEY_NAME}"
     else
       ok "Reusing existing key."
       return
@@ -97,7 +100,8 @@ generate_key() {
   fi
 
   if [ -z "${COMMENT}" ]; then
-    local default_c="${USER}@$(hostname -s) $(date +%Y-%m-%d)"
+    local default_c
+    default_c="${USER}@$(hostname -s) $(date +%Y-%m-%d)"
     read -r -p "Key comment (leave blank to use '${default_c}'): " input_c
     if [ -n "$input_c" ]; then
       COMMENT="$input_c"
@@ -113,14 +117,18 @@ generate_key() {
 add_key_to_agent() {
   echo_heading "Adding key to ssh-agent"
   ensure_ssh_agent
-  ssh-add "${KEY_PATH}" || true
-  ok "Key added to agent."
+  if ssh-add "${KEY_PATH}"; then
+    ok "Key added to agent."
+  else
+    err "Could not add key to ssh-agent: ${KEY_PATH}"
+    exit 1
+  fi
 }
 
 copy_pubkey_to_clipboard() {
   echo_heading "Copying public key to clipboard"
   detect_clipboard
-  if [ -z "${CLIP_CMD}" ]; then
+  if [ "${#CLIP_CMD[@]}" -eq 0 ]; then
     warn "No clipboard tool found (wl-copy/xclip/xsel)."
     info "Public key: ${KEY_PATH}.pub"
     info "Print it with:  cat ${KEY_PATH}.pub"
@@ -130,8 +138,7 @@ copy_pubkey_to_clipboard() {
     err "Public key not found: ${KEY_PATH}.pub"
     return
   fi
-  # shellcheck disable=SC2086
-  ${CLIP_CMD} <"${KEY_PATH}.pub"
+  "${CLIP_CMD[@]}" <"${KEY_PATH}.pub"
   ok "Public key copied to clipboard."
 }
 
@@ -158,12 +165,11 @@ test_github_ssh() {
   fi
 
   bold "ssh -T git@github.com"
-  set +e
-  SSH_ASKPASS_REQUIRE=force ssh -T git@github.com 2>&1 | tee /tmp/gh_ssh_test.log
-  local rc=${PIPESTATUS[0]}
-  set -e
+  local ssh_output
+  ssh_output="$(SSH_ASKPASS_REQUIRE=force ssh -T git@github.com 2>&1 || true)"
+  printf '%s\n' "$ssh_output"
 
-  if grep -qi "successfully authenticated" /tmp/gh_ssh_test.log; then
+  if grep -qi "successfully authenticated" <<<"$ssh_output"; then
     ok "SSH authentication with GitHub works."
   else
     warn "No success message yet—did you add the key on GitHub?"
@@ -204,11 +210,18 @@ parse_args() {
   while [ $# -gt 0 ]; do
     case "$1" in
     --comment)
-      COMMENT="${2:-}"
+      [ "$#" -ge 2 ] || { err "--comment requires a value"; exit 2; }
+      COMMENT="$2"
       shift 2
       ;;
     --key-name)
-      KEY_NAME="${2:-}"
+      [ "$#" -ge 2 ] || { err "--key-name requires a value"; exit 2; }
+      KEY_NAME="$2"
+      if [ -z "$KEY_NAME" ] || [ "$KEY_NAME" != "$(basename -- "$KEY_NAME")" ] ||
+        [ "$KEY_NAME" = "." ] || [ "$KEY_NAME" = ".." ]; then
+        err "--key-name must be a non-empty basename"
+        exit 2
+      fi
       KEY_PATH="${KEY_DIR}/${KEY_NAME}"
       shift 2
       ;;
@@ -235,8 +248,8 @@ parse_args() {
 
 # ------------- Main -------------
 main() {
-  echo_heading "GitHub SSH setup"
   parse_args "$@"
+  echo_heading "GitHub SSH setup"
   preflight_checks
   generate_key
   add_key_to_agent

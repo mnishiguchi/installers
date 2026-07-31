@@ -93,10 +93,14 @@ download_firmware() {
 
   echo_heading "Downloading firmware for ${MIX_TARGET}"
   local url="https://github.com/nerves-livebook/nerves_livebook/releases/latest/download/nerves_livebook_${MIX_TARGET}.fw"
-  if ! curl -fsSL "$url" -o "$FW_IMAGE"; then
+  local partial_image="${FW_IMAGE}.part"
+  rm -f -- "$partial_image"
+  if ! curl -fsSL "$url" -o "$partial_image"; then
+    rm -f -- "$partial_image"
     echo_error "Failed downloading ${url}"
     exit 1
   fi
+  mv -- "$partial_image" "$FW_IMAGE"
   echo_success "Saved to ${FW_IMAGE}"
 }
 
@@ -124,13 +128,18 @@ configure_provisioning() {
     fi
   fi
 
-  read -rp "Force WiFi each boot? [y/N]: " wifi_force_answer
-  case "$wifi_force_answer" in
-  [Yy]*)
-    PROVISIONING_ENV+=("NERVES_WIFI_FORCE=true")
-    ;;
-  *) ;;
-  esac
+  if [ -n "${NERVES_WIFI_FORCE-}" ]; then
+    echo_success "WiFi force setting from env: ${NERVES_WIFI_FORCE}"
+    PROVISIONING_ENV+=("NERVES_WIFI_FORCE=${NERVES_WIFI_FORCE}")
+  else
+    read -rp "Force WiFi each boot? [y/N]: " wifi_force_answer
+    case "$wifi_force_answer" in
+    [Yy]*)
+      PROVISIONING_ENV+=("NERVES_WIFI_FORCE=true")
+      ;;
+    *) ;;
+    esac
+  fi
 
   if [ -n "${NERVES_SERIAL_NUMBER-}" ]; then
     echo_success "Serial from env: ${NERVES_SERIAL_NUMBER}"
@@ -162,7 +171,7 @@ flash_card() {
   case "$proceed_answer" in
   [Yy]*)
     echo_heading "Launching fwup"
-    sudo "${PROVISIONING_ENV[@]}" fwup "$FW_IMAGE"
+    sudo env "${PROVISIONING_ENV[@]}" fwup "$FW_IMAGE"
     echo_success "Your Nerves Livebook card is ready!"
     echo
     echo "Next steps:"

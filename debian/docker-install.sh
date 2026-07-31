@@ -72,7 +72,8 @@ APT_FLAGS=(-y -o Dpkg::Use-Pty=0 -o Acquire::Retries=3)
 apt_update_once() {
   if [ "${APT_UPDATED}" -eq 0 ]; then
     echo_heading "Refreshing APT metadata..."
-    sudo apt-get update "${APT_FLAGS[@]}" >/dev/null || true
+    retry 2 3 -- sudo apt-get update "${APT_FLAGS[@]}" >/dev/null ||
+      die "Failed to refresh APT metadata."
     APT_UPDATED=1
     echo_success "APT updated."
   fi
@@ -85,7 +86,11 @@ retry() {
   # retry <tries> <sleep> -- <cmd...>
   local tries="${1:-2}" sleep_s="${2:-3}"
   shift 2
-  [ "$1" = "--" ] && shift || die "retry usage: retry <tries> <sleep> -- <cmd...>"
+  if [ "${1:-}" != "--" ]; then
+    die "retry usage: retry <tries> <sleep> -- <cmd...>"
+  fi
+  shift
+  [ "$#" -gt 0 ] || die "retry requires a command"
   local n=1
   while true; do
     if "$@"; then return 0; fi

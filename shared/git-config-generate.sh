@@ -39,9 +39,16 @@ prompt_input() {
 generate_git_config() {
   echo_heading "Configuring Git settings..."
 
+  if ! command -v git >/dev/null 2>&1; then
+    echo_warning "git is not installed."
+    exit 1
+  fi
+
   # Prompt for user information
-  GIT_USER_NAME=$(prompt_input "Enter your Git user.name" "John Doe")
-  GIT_USER_EMAIL=$(prompt_input "Enter your Git user.email" "john.doe@example.com")
+  current_name="$(git config --global user.name 2>/dev/null || true)"
+  current_email="$(git config --global user.email 2>/dev/null || true)"
+  GIT_USER_NAME=$(prompt_input "Enter your Git user.name" "${current_name:-$USER}")
+  GIT_USER_EMAIL=$(prompt_input "Enter your Git user.email" "${current_email:-$USER@$(hostname -s)}")
 
   # Apply essential Git configurations
   git config --global user.name "$GIT_USER_NAME"
@@ -69,19 +76,17 @@ generate_git_config() {
     if command -v git-credential-manager >/dev/null; then
       git config --global credential.helper "manager"
       echo_success "Set credential.helper to manager for Linux."
-    elif command -v gnome-keyring >/dev/null || command -v libsecret >/dev/null; then
+    elif command -v git-credential-libsecret >/dev/null; then
       git config --global credential.helper "libsecret"
       echo_success "Set credential.helper to libsecret for Linux."
     else
-      git config --global credential.helper "store"
-      echo_warning "Set credential.helper to store. Credentials will be stored in plaintext."
+      echo_warning "No secure Git credential helper found; left credential.helper unchanged."
     fi
   elif [[ "$(uname)" =~ MINGW|CYGWIN|MSYS ]]; then
     git config --global credential.helper "manager"
     echo_success "Set credential.helper to manager for Windows."
   else
-    git config --global credential.helper "store"
-    echo_warning "Set credential.helper to store. Credentials will be stored in plaintext."
+    echo_warning "No credential helper configured for this platform."
   fi
 }
 

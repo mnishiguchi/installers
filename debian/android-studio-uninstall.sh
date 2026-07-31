@@ -66,7 +66,9 @@ parse_args() {
       exit 0
       ;;
     *)
-      echo_warn "Unknown option: $1"
+      echo_failure "Unknown option: $1"
+      print_help >&2
+      exit 2
       ;;
     esac
     shift
@@ -159,8 +161,8 @@ summary() {
 }
 
 main() {
-  require_sudo
   parse_args "$@"
+  require_sudo
 
   remove_install_dir
   remove_launcher_and_desktop

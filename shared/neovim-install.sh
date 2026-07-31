@@ -30,6 +30,15 @@ detect_arch() {
   esac
 }
 
+validate_paths() {
+  case "$INSTALL_ROOT" in
+    "" | / | "$HOME") fail "refusing unsafe INSTALL_ROOT: '${INSTALL_ROOT}'" ;;
+  esac
+  case "$BIN_DIR" in
+    "" | /) fail "refusing unsafe BIN_DIR: '${BIN_DIR}'" ;;
+  esac
+}
+
 # Return first working URL among known filename variants & channels/tags
 resolve_url() {
   local arch variant tag url
@@ -54,7 +63,11 @@ resolve_url() {
   # Probe candidates via HTTP HEAD to find a valid asset
   for tag in "${tags[@]}"; do
     for variant in "${variants[@]}"; do
-      url="https://github.com/neovim/neovim/releases/download/${tag}/${variant}"
+      if [[ "$tag" == "latest" ]]; then
+        url="https://github.com/neovim/neovim/releases/latest/download/${variant}"
+      else
+        url="https://github.com/neovim/neovim/releases/download/${tag}/${variant}"
+      fi
       if curl -fsIL "$url" >/dev/null 2>&1; then
         echo "$url"
         return 0
@@ -66,6 +79,7 @@ resolve_url() {
 }
 
 main() {
+  validate_paths
   need curl
   need tar
 
@@ -91,7 +105,12 @@ Known variants: see script."
 
   echo_h "Linking binary…"
   mkdir -p "$BIN_DIR"
-  ln -sf "$INSTALL_ROOT/bin/nvim" "$BIN_DIR/nvim"
+  if [[ -e "$BIN_DIR/nvim" && ! -L "$BIN_DIR/nvim" ]]; then
+    backup_path="$BIN_DIR/nvim.bak.$(date +%s)"
+    mv -- "$BIN_DIR/nvim" "$backup_path"
+    warn "moved existing $BIN_DIR/nvim to $backup_path"
+  fi
+  ln -sfn "$INSTALL_ROOT/bin/nvim" "$BIN_DIR/nvim"
   ok "symlink: $BIN_DIR/nvim -> $INSTALL_ROOT/bin/nvim"
 
   echo_h "Verifying…"
