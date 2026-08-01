@@ -78,7 +78,16 @@ Reboot to apply session, shell, Docker group, desktop, and input-method changes:
 sudo reboot
 ```
 
-## 5. Restore personal data
+## 5. Validate the clean desktop
+
+Before reconnecting the backup drive or restoring personal configuration, log
+in to the rebooted system and verify that the desktop, file manager, terminal,
+browser, keyboard input, and managed shortcuts work normally.
+
+Resolve any problems before restoring application configuration so bootstrap
+issues can be distinguished from restored user state.
+
+## 6. Restore personal data
 
 Reconnect the backup drive and restore personal files from Pika. Do not restore
 these directories wholesale:
@@ -104,7 +113,7 @@ git -C ../dotfiles status --short
 ssh -T git@github.com
 ```
 
-## 6. Create a new backup baseline
+## 7. Create a new backup baseline
 
 Create a Timeshift snapshot named `Clean LMDE 7 baseline`, then run a new Pika
 Backup and test restoring several files. Keep the preinstallation backups until

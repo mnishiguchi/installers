@@ -173,6 +173,41 @@ load_manifest() {
   done <"$manifest"
 }
 
+check_user_state_ownership() {
+  local directory
+  local unexpected_path
+  local owner_name
+  local ownership_drift=0
+  local -a directories=(
+    "${XDG_CONFIG_HOME:-$HOME/.config}"
+    "${XDG_CACHE_HOME:-$HOME/.cache}"
+    "${XDG_DATA_HOME:-$HOME/.local/share}"
+    "${XDG_STATE_HOME:-$HOME/.local/state}"
+  )
+
+  owner_name="$(id -un)"
+  say "User configuration ownership"
+
+  for directory in "${directories[@]}"; do
+    [[ -e "$directory" ]] || continue
+    unexpected_path="$(
+      find -H "$directory" -xdev ! -user "$owner_name" -print -quit 2>/dev/null || true
+    )"
+    [[ -n "$unexpected_path" ]] || continue
+
+    ownership_drift=1
+    if [[ "$CHECK" == true ]]; then
+      mark_drift "path is not owned by $owner_name: $unexpected_path"
+    else
+      fail "path is not owned by $owner_name: $unexpected_path"
+    fi
+  done
+
+  if ((ownership_drift == 0)); then
+    ok "existing user configuration is owned by $owner_name"
+  fi
+}
+
 run_script() {
   local script="$1"
   shift
@@ -568,11 +603,12 @@ run_sections() {
 main() {
   parse_args "$@"
   validate_sections
+
+  [[ $EUID -ne 0 ]] || fail "run this script as your normal user, not with sudo"
+
   require_file "$APT_MANIFEST"
   require_file "$FLATPAK_MANIFEST"
   require_file "$MISE_MANIFEST"
-
-  [[ $EUID -ne 0 ]] || fail "run this script as your normal user, not with sudo"
 
   if [[ "$CHECK" == true ]]; then
     say "Checking managed workstation state"
@@ -580,6 +616,7 @@ main() {
     say "Restoring managed workstation state"
   fi
 
+  check_user_state_ownership
   run_sections
 
   if [[ "$CHECK" == true ]]; then
@@ -590,7 +627,8 @@ main() {
     ok "managed workstation state is complete"
   else
     echo
-    ok "Restore complete. Log out and back in for shell and group changes."
+    ok "Restore complete. Reboot before validating the desktop."
+    warn "Do not restore ~/.config, ~/.cache, or ~/.local wholesale from backup."
   fi
 }
 
