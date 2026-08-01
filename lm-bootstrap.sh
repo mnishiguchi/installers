@@ -19,6 +19,7 @@ RUN_UPGRADE=false
 CHANGE_SHELL=true
 ONLY_SECTIONS=""
 CHECK_DRIFT=0
+CURRENT_SECTION="startup"
 
 export PATH="$HOME/.local/bin:$PATH"
 APT_FLAGS=(-y -o Dpkg::Use-Pty=0 -o Acquire::Retries=3 -qq)
@@ -30,6 +31,17 @@ fail() {
   printf " \033[31m✖ %s\033[0m\n" "$*" >&2
   exit 1
 }
+
+on_error() {
+  local exit_code=$?
+  local line_number="$1"
+
+  trap - ERR
+  warn "section '$CURRENT_SECTION' failed at line $line_number with exit code $exit_code"
+  exit "$exit_code"
+}
+
+trap 'on_error "$LINENO"' ERR
 
 has() { command -v "$1" >/dev/null 2>&1; }
 
@@ -547,6 +559,7 @@ run_sections() {
 
   for section in "${ALL_SECTIONS[@]}"; do
     if section_enabled "$section"; then
+      CURRENT_SECTION="$section"
       "section_$section"
     fi
   done
