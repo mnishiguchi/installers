@@ -2,7 +2,8 @@
 
 Use `user/browser-settings-backup.sh` to back up portable Google Chrome and
 Brave settings without copying complete browser profiles. Close both browsers
-before running it.
+before running it. Use the browser's **Exit** command if background processes
+remain after closing every window; the helper reports the active PID and state.
 
 ```bash
 ./user/browser-settings-backup.sh

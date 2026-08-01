@@ -57,14 +57,15 @@ parse_args() {
   fi
 }
 
-browser_is_running() {
-  local process_name
-  local -a process_names=(chrome google-chrome brave brave-browser)
-
-  for process_name in "${process_names[@]}"; do
-    pgrep -x "$process_name" >/dev/null && return 0
-  done
-  return 1
+active_browser_processes() {
+  ps -u "$(id -u)" -o pid=,stat=,comm= | awk '
+    $2 !~ /^Z/ &&
+      ($3 == "chrome" || $3 == "google-chrome" ||
+       $3 == "brave" || $3 == "brave-browser") &&
+      !seen[$3]++ {
+        printf "  PID %s (%s, state %s)\n", $1, $3, $2
+      }
+  '
 }
 
 copy_setting_file() {
@@ -143,10 +144,18 @@ main() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   local chrome_root="$config_home/google-chrome"
   local brave_root="$config_home/BraveSoftware/Brave-Browser"
+  local running_browsers
 
   parse_args "$@"
-  command -v pgrep >/dev/null 2>&1 || fail "pgrep is required"
-  browser_is_running && fail "close Google Chrome and Brave before creating the backup"
+  command -v ps >/dev/null 2>&1 || fail "ps is required"
+  command -v awk >/dev/null 2>&1 || fail "awk is required"
+
+  running_browsers="$(active_browser_processes)"
+  if [[ -n "$running_browsers" ]]; then
+    printf 'Active browser processes:\n%s\n' "$running_browsers" >&2
+    fail "fully quit Google Chrome and Brave, including background processes"
+  fi
+
   [[ ! -e "$backup_root" && ! -L "$backup_root" ]] \
     || fail "destination already exists: $backup_root"
 
