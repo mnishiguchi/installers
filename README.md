@@ -20,3 +20,8 @@ After logging in again:
 cd "$HOME/Projects/installers"
 ./lm-bootstrap.sh --check
 ```
+
+## Recovery helpers
+
+- [`lm-networkmanager-connections.sh`](lm-networkmanager-connections.sh) safely
+  backs up and restores Wi-Fi, wired, and VPN connection profiles.
