@@ -79,6 +79,8 @@ zlib1g-dev
 adb
 avahi-utils
 libvirt-daemon-system
+network-manager-l2tp
+network-manager-l2tp-gnome
 qemu-system-x86
 squashfs-tools
 tio
