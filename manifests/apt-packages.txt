@@ -15,6 +15,7 @@ flatpak
 fontconfig
 fonts-dejavu-mono
 gawk
+gh
 git
 gnome-authenticator
 gnome-calculator
