@@ -1,4 +1,5 @@
 # Core terminal and desktop utilities
+age
 alacritty
 bitwise
 cinnamon
