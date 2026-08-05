@@ -501,10 +501,10 @@ install_brave() {
 }
 
 install_1password() {
-  if dpkg-query -W -f='${db:Status-Abbrev}' 1password 2>/dev/null | grep -q '^ii '; then
-    ok "1Password is installed"
+  if run_script "$SCRIPT_DIR/debian/1password-install.sh" --check; then
+    ok "1Password is installed and configured"
   elif [[ "$CHECK" == true ]]; then
-    mark_drift "1Password is not installed"
+    mark_drift "1Password configuration is incomplete"
   else
     run_script "$SCRIPT_DIR/debian/1password-install.sh"
   fi

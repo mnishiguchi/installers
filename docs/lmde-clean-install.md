@@ -9,6 +9,11 @@ project repositories.
 
 - Run Pika Backup and test restoring several files.
 - If the backup is encrypted, store its password separately.
+- Verify the Family Emergency Kit is complete and accessible.
+- Create a fresh 1PUX export if an offline 1Password backup is needed. Desktop
+  1PUX exports are unencrypted, so store one only in encrypted storage.
+- Record which important accounts use passkeys. Desktop 1PUX exports do not
+  include passkeys, so migrate or recreate them separately.
 - Create a final Timeshift snapshot on an external drive.
 - Review untracked files, stashes, and unpushed branches.
 - Capture desktop changes:
@@ -72,6 +77,11 @@ Restore the managed system state:
 Use `--skip-shell-change` to keep Bash temporarily; see `--help` for selective
 restoration.
 
+After the bootstrap completes, sign in to 1Password using the Emergency Kit and
+allow vault data to synchronize from the Family account. Do not restore
+`~/.config/1Password` as the normal recovery method. Verify several important
+logins before deleting any old backups.
+
 Reboot to apply session, shell, Docker group, desktop, and input-method changes:
 
 ```bash
@@ -99,8 +109,10 @@ these directories wholesale:
 ```
 
 Restore browser profiles, application data, credentials, `~/.ssh`, and
-`~/.gnupg` selectively. Clone published projects from GitHub and restore only
-local-only work from Pika.
+`~/.gnupg` selectively. Keep `~/.config/1Password` out of this restoration:
+sign in through the Emergency Kit and let the Family account synchronize vault
+data. Clone published projects from GitHub and restore only local-only work
+from Pika.
 
 Validate the result:
 

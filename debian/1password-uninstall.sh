@@ -8,6 +8,9 @@
 # Usage:
 #   ./1password-uninstall.sh [--purge] [--purge-user-data] [--keep-repo]
 #
+# Run this script as the desktop user. It invokes sudo only for system-level
+# operations.
+#
 set -euo pipefail
 
 PKG="1password"
@@ -46,6 +49,7 @@ parse_args() {
       --keep-repo) KEEP_REPO=1 ;;
       -h|--help)
         echo "Usage: $0 [--purge] [--purge-user-data] [--keep-repo]"
+        echo "Run this script as the desktop user; it invokes sudo for system changes."
         exit 0
         ;;
       *)
@@ -55,6 +59,13 @@ parse_args() {
     esac
     shift
   done
+}
+
+validate_execution_context() {
+  if [ "$PURGE_USER_DATA" -eq 1 ] && [ "${EUID}" -eq 0 ]; then
+    echo_failure "Do not run --purge-user-data as root. Run this script as the desktop user so only that user's 1Password data is removed."
+    exit 1
+  fi
 }
 
 pkg_installed() {
@@ -71,7 +82,6 @@ remove_package() {
       $SUDO apt-get remove -y "$PKG"
       echo_success "Removed package: $PKG"
     fi
-    $SUDO apt-get autoremove -y >/dev/null || true
   else
     echo_success "Package not installed: $PKG"
   fi
@@ -154,6 +164,7 @@ summary() {
 
 main() {
   parse_args "$@"
+  validate_execution_context
   require_sudo
   remove_package
   remove_repo_and_keys
