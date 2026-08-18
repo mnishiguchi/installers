@@ -3,6 +3,7 @@ age
 alacritty
 bitwise
 cinnamon
+clamav
 copyq
 curl
 dconf-cli
