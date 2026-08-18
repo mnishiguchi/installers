@@ -1,4 +1,4 @@
-# Global development tool manifest. lm-bootstrap.sh links this file to
+# Global development tool manifest. lm-bootstrap.sh copies this file to
 # ~/.config/mise/config.toml and installs tools better managed outside APT.
 [tools]
 "aqua:aws/aws-cli" = "latest"

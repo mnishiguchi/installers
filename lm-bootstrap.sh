@@ -354,29 +354,29 @@ install_mise_cli() {
   ok "mise installed"
 }
 
-link_mise_config() {
+install_mise_config() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   local target_dir="$config_home/mise"
   local target="$target_dir/config.toml"
-  local current_target=""
   local backup
 
   require_file "$MISE_MANIFEST"
 
-  if [[ -L "$target" ]]; then
-    current_target="$(readlink -f -- "$target" 2>/dev/null || true)"
-  fi
-
-  if [[ "$current_target" == "$(readlink -f -- "$MISE_MANIFEST")" ]]; then
-    ok "mise global config is linked to the managed manifest"
+  if [[ -f "$target" && ! -L "$target" ]] && cmp -s -- "$MISE_MANIFEST" "$target"; then
+    if [[ "$CHECK" != true ]]; then
+      mise trust --quiet "$target" || fail "failed to trust mise global config"
+    fi
+    ok "mise global config matches the managed manifest"
     return
   fi
 
   if [[ "$CHECK" == true ]]; then
-    if [[ -f "$target" ]] && cmp -s -- "$MISE_MANIFEST" "$target"; then
-      mark_drift "mise config content matches but is not linked to $MISE_MANIFEST"
+    if [[ -L "$target" ]]; then
+      mark_drift "mise global config is symlinked; expected a copied manifest"
+    elif [[ -e "$target" ]]; then
+      mark_drift "mise global config does not match $MISE_MANIFEST"
     else
-      mark_drift "mise global config is not managed by $MISE_MANIFEST"
+      mark_drift "mise global config is missing"
     fi
     return
   fi
@@ -387,8 +387,9 @@ link_mise_config() {
     mv -- "$target" "$backup"
     warn "backed up existing mise config to $backup"
   fi
-  ln -s -- "$MISE_MANIFEST" "$target"
-  ok "linked $target -> $MISE_MANIFEST"
+  cp -- "$MISE_MANIFEST" "$target"
+  mise trust --quiet "$target" || fail "failed to trust mise global config"
+  ok "copied and trusted $MISE_MANIFEST at $target"
 }
 
 ensure_mise_fwup_plugin() {
@@ -419,13 +420,17 @@ section_mise() {
   if ! install_mise_cli; then
     return 0
   fi
-  link_mise_config
+  install_mise_config
   if ! ensure_mise_fwup_plugin; then
     return 0
   fi
 
   if [[ "$CHECK" == true ]]; then
     mise_check_state="$(mktemp -d)"
+    if ! MISE_STATE_DIR="$mise_check_state" mise trust --quiet "$MISE_MANIFEST"; then
+      rm -rf -- "$mise_check_state"
+      fail "failed to prepare temporary mise trust state"
+    fi
     if MISE_STATE_DIR="$mise_check_state" mise install -C "$MANIFEST_DIR" --dry-run-code; then
       ok "all mise tools from the managed manifest are installed"
     else
