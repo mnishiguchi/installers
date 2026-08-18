@@ -8,11 +8,35 @@ readonly SCRIPT_DIR
 readonly MANIFEST_DIR="$SCRIPT_DIR/manifests"
 readonly APT_MANIFEST="$MANIFEST_DIR/apt-packages.txt"
 readonly FLATPAK_MANIFEST="$MANIFEST_DIR/flatpak-apps.txt"
-readonly MISE_MANIFEST="$MANIFEST_DIR/mise.toml"
 readonly MISE_FWUP_PLUGIN_URL="https://github.com/fwup-home/asdf-fwup.git"
 readonly DOTFILES_DIR="$SCRIPT_DIR/../dotfiles"
 
 readonly -a ALL_SECTIONS=(directories apt dotfiles extras mise flatpak desktop docker shell)
+readonly -a MISE_TOOLS=(
+  "aqua:aws/aws-cli@latest"
+  "azure[uvx_args=--prerelease=allow]@latest"
+  "azure-functions-core-tools@latest"
+  "cargo:tree-sitter-cli@latest"
+  "elixir@1.19.5-otp-28"
+  "erlang@28"
+  "fwup@latest"
+  "gh@latest"
+  "go@latest"
+  "hugo-extended@latest"
+  "java@temurin-17"
+  "lazydocker@latest"
+  "neovim@latest"
+  "node@22.20.0"
+  "npm:@openai/codex@latest"
+  "pipx:esptool@latest"
+  "pipx:platformio@latest"
+  "python@3.12"
+  "rebar@latest"
+  "ruby@latest"
+  "rust@latest"
+  "uv@latest"
+  "yazi@latest"
+)
 
 CHECK=false
 RUN_UPGRADE=false
@@ -354,42 +378,88 @@ install_mise_cli() {
   ok "mise installed"
 }
 
-install_mise_config() {
+validate_mise_global_config() {
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-  local target_dir="$config_home/mise"
-  local target="$target_dir/config.toml"
-  local backup
+  local target="$config_home/mise/config.toml"
 
-  require_file "$MISE_MANIFEST"
-
-  if [[ -f "$target" && ! -L "$target" ]] && cmp -s -- "$MISE_MANIFEST" "$target"; then
-    if [[ "$CHECK" != true ]]; then
-      mise trust --quiet "$target" || fail "failed to trust mise global config"
-    fi
-    ok "mise global config matches the managed manifest"
-    return
+  if [[ ! -L "$target" && ( ! -e "$target" || -f "$target" ) ]]; then
+    return 0
   fi
 
   if [[ "$CHECK" == true ]]; then
-    if [[ -L "$target" ]]; then
-      mark_drift "mise global config is symlinked; expected a copied manifest"
-    elif [[ -e "$target" ]]; then
-      mark_drift "mise global config does not match $MISE_MANIFEST"
-    else
-      mark_drift "mise global config is missing"
+    mark_drift "mise global config is not a regular file: $target"
+    return 1
+  fi
+
+  fail "mise global config must be a regular file: $target"
+}
+
+mise_global_config_path() {
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+  printf '%s\n' "$config_home/mise/config.toml"
+}
+
+mise_tools_ready() {
+  local global_config
+  local mise_state
+  local mise_check_state
+  local requested_version
+  local tool
+  local tool_spec
+  local tools_ready=true
+
+  global_config="$(mise_global_config_path)"
+  [[ -f "$global_config" ]] || return 1
+  mise_check_state="$(mktemp -d)"
+  if ! MISE_STATE_DIR="$mise_check_state" mise trust --quiet "$global_config"; then
+    rm -rf -- "$mise_check_state"
+    return 1
+  fi
+
+  if ! mise_state="$(MISE_STATE_DIR="$mise_check_state" mise ls --global --json)"; then
+    rm -rf -- "$mise_check_state"
+    return 1
+  fi
+  for tool_spec in "${MISE_TOOLS[@]}"; do
+    requested_version="${tool_spec##*@}"
+    tool="${tool_spec%@*}"
+    tool="${tool%%\[*}"
+    if ! jq -e --arg tool "$tool" --arg version "$requested_version" \
+      '(.[$tool] // []) | any(
+        .requested_version == $version and .installed == true and .active == true
+      )' <<<"$mise_state" >/dev/null; then
+      tools_ready=false
     fi
+  done
+
+  if [[ "$(MISE_STATE_DIR="$mise_check_state" \
+    mise config get --file "$global_config" tools.azure.uvx_args 2>/dev/null || true)" \
+    != "--prerelease=allow" ]]; then
+    tools_ready=false
+  fi
+
+  rm -rf -- "$mise_check_state"
+  [[ "$tools_ready" == true ]]
+}
+
+check_mise_tools() {
+  if mise_tools_ready; then
+    ok "all mise development tools are configured and installed"
+  else
+    mark_drift "one or more mise development tools need configuration or installation"
+  fi
+}
+
+install_mise_tools() {
+  if mise_tools_ready; then
+    ok "mise development tools are already configured and installed"
     return
   fi
 
-  mkdir -p -- "$target_dir"
-  if [[ -e "$target" || -L "$target" ]]; then
-    backup="${target}.bak.$(date +%Y%m%d%H%M%S)"
-    mv -- "$target" "$backup"
-    warn "backed up existing mise config to $backup"
-  fi
-  cp -- "$MISE_MANIFEST" "$target"
-  mise trust --quiet "$target" || fail "failed to trust mise global config"
-  ok "copied and trusted $MISE_MANIFEST at $target"
+  mise use --global --yes "${MISE_TOOLS[@]}" \
+    || fail "mise development tool installation failed"
+  ok "mise development tools are configured and installed"
 }
 
 ensure_mise_fwup_plugin() {
@@ -414,34 +484,24 @@ ensure_mise_fwup_plugin() {
 }
 
 section_mise() {
-  local mise_check_state
-
   say "mise-managed development tools"
   if ! install_mise_cli; then
     return 0
   fi
-  install_mise_config
+  has jq || fail "jq is required to manage mise development tools"
+  if ! validate_mise_global_config; then
+    return 0
+  fi
   if ! ensure_mise_fwup_plugin; then
     return 0
   fi
 
   if [[ "$CHECK" == true ]]; then
-    mise_check_state="$(mktemp -d)"
-    if ! MISE_STATE_DIR="$mise_check_state" mise trust --quiet "$MISE_MANIFEST"; then
-      rm -rf -- "$mise_check_state"
-      fail "failed to prepare temporary mise trust state"
-    fi
-    if MISE_STATE_DIR="$mise_check_state" mise install -C "$MANIFEST_DIR" --dry-run-code; then
-      ok "all mise tools from the managed manifest are installed"
-    else
-      mark_drift "one or more managed mise tools need installation"
-    fi
-    rm -rf -- "$mise_check_state"
+    check_mise_tools
     return
   fi
 
-  mise install -C "$MANIFEST_DIR" --yes
-  ok "mise tools restored from $MISE_MANIFEST"
+  install_mise_tools
 }
 
 section_flatpak() {
@@ -613,7 +673,6 @@ main() {
 
   require_file "$APT_MANIFEST"
   require_file "$FLATPAK_MANIFEST"
-  require_file "$MISE_MANIFEST"
 
   if [[ "$CHECK" == true ]]; then
     say "Checking managed workstation state"
