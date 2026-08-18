@@ -12,13 +12,15 @@ readonly MISE_FWUP_PLUGIN_URL="https://github.com/fwup-home/asdf-fwup.git"
 readonly DOTFILES_DIR="$SCRIPT_DIR/../dotfiles"
 
 readonly -a ALL_SECTIONS=(directories apt dotfiles extras mise flatpak desktop docker shell)
+readonly -a MISE_PREREQUISITE_TOOLS=(
+  "erlang@28"
+)
 readonly -a MISE_TOOLS=(
   "aqua:aws/aws-cli@latest"
   "azure[uvx_args=--prerelease=allow]@latest"
   "azure-functions-core-tools@latest"
   "cargo:tree-sitter-cli@latest"
   "elixir@1.19.5-otp-28"
-  "erlang@28"
   "fwup@latest"
   "gh@latest"
   "go@latest"
@@ -421,7 +423,7 @@ mise_tools_ready() {
     rm -rf -- "$mise_check_state"
     return 1
   fi
-  for tool_spec in "${MISE_TOOLS[@]}"; do
+  for tool_spec in "${MISE_PREREQUISITE_TOOLS[@]}" "${MISE_TOOLS[@]}"; do
     requested_version="${tool_spec##*@}"
     tool="${tool_spec%@*}"
     tool="${tool%%\[*}"
@@ -457,6 +459,8 @@ install_mise_tools() {
     return
   fi
 
+  mise use --global --yes "${MISE_PREREQUISITE_TOOLS[@]}" \
+    || fail "mise prerequisite tool installation failed"
   mise use --global --yes "${MISE_TOOLS[@]}" \
     || fail "mise development tool installation failed"
   ok "mise development tools are configured and installed"
