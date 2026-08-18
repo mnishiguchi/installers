@@ -2,6 +2,8 @@
 # ~/.config/mise/config.toml and installs tools better managed outside APT.
 [tools]
 "aqua:aws/aws-cli" = "latest"
+azure = { version = "latest", uvx_args = "--prerelease=allow" }
+azure-functions-core-tools = "latest"
 "cargo:tree-sitter-cli" = "latest"
 elixir = "1.19.5-otp-28"
 erlang = "28"
