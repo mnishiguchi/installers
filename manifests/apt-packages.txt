@@ -1,6 +1,7 @@
 # Core terminal and desktop utilities
 age
 alacritty
+bat
 bitwise
 cinnamon
 clamav
@@ -8,6 +9,8 @@ copyq
 curl
 dconf-cli
 direnv
+eza
+fastfetch
 fcitx
 fcitx-config-gtk
 fcitx-mozc
@@ -16,8 +19,8 @@ flameshot
 flatpak
 fontconfig
 fonts-dejavu-mono
+fzf
 gawk
-gh
 git
 gnome-authenticator
 gnome-calculator
@@ -26,6 +29,7 @@ htop
 im-config
 imagemagick
 jq
+lazygit
 mint-cursor-themes
 mint-themes
 mint-y-icons
@@ -33,6 +37,7 @@ mozc-utils-gui
 ncdu
 peek
 playerctl
+ripgrep
 rofi
 shellcheck
 shfmt
@@ -43,6 +48,7 @@ wget
 xclip
 xdotool
 zip
+zoxide
 
 # Native build toolchain and libraries
 autoconf
@@ -81,6 +87,7 @@ zlib1g-dev
 # Embedded, networking, editing, and virtualization workflow
 adb
 avahi-utils
+fd-find
 libvirt-daemon-system
 network-manager-l2tp
 network-manager-l2tp-gnome
