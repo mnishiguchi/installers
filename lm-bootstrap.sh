@@ -28,7 +28,7 @@ readonly -a MISE_TOOLS=(
   "java@temurin-17"
   "lazydocker@latest"
   "neovim@latest"
-  "node@22.20.0"
+  "node@24"
   "npm:@openai/codex@latest"
   "pipx:esptool@latest"
   "pipx:platformio@latest"
