@@ -56,6 +56,11 @@ require_absolute_path() {
   esac
 }
 
+canonicalize_path() {
+  require_command readlink
+  readlink -m -- "$1"
+}
+
 validate_sha256() {
   digest=$1
 
@@ -209,6 +214,13 @@ bin_dir=${ARDUINO_IDE_BIN_DIR:-"$HOME/.local/bin"}
 require_absolute_path ARDUINO_IDE_INSTALL_ROOT "$install_root"
 require_absolute_path ARDUINO_IDE_BIN_DIR "$bin_dir"
 require_absolute_path XDG_DATA_HOME "$data_home"
+
+install_root=$(canonicalize_path "$install_root")
+bin_dir=$(canonicalize_path "$bin_dir")
+data_home=$(canonicalize_path "$data_home")
+
+[ "$install_root" != "$bin_dir" ] ||
+  die "ARDUINO_IDE_INSTALL_ROOT and ARDUINO_IDE_BIN_DIR must be different directories"
 
 install_dir="$install_root/arduino-ide-$version"
 stable_link="$install_root/arduino-ide"
