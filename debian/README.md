@@ -4,6 +4,20 @@ Scripts for installing or removing software and OS dependencies on Debian-based
 systems. Individual scripts document whether they operate system-wide or only
 for the current user.
 
+Run these scripts as the desktop user unless a script explicitly says otherwise.
+System-wide installers invoke `sudo` for the operations that require it.
+
+## Script catalog
+
+| Software | Install | Uninstall | Scope and notes |
+| --- | --- | --- | --- |
+| 1Password | `1password-install.sh` | `1password-uninstall.sh` | Official APT repository, debsig policy, and Yama configuration |
+| Android Studio | `android-studio-install.sh` | `android-studio-uninstall.sh` | System install under `/opt`; settings and SDK purges are optional |
+| Arduino IDE | `arduino-ide-install.sh` | `arduino-ide-uninstall.sh` | Per-user XDG-aware install; no `sudo` |
+| Docker Engine | `docker-install.sh` | `docker-uninstall.sh` | System install; Docker data and group removal are opt-in |
+| Nerves dependencies | `nerves-deps-install.sh` | — | Debian build packages for Nerves development |
+| Visual Studio Code | `vscode-install.sh` | `vscode-uninstall.sh` | Official Debian package; user-data removal is interactive |
+
 ## Arduino IDE
 
 Arduino IDE is installed per-user from the official Linux ZIP, so these scripts
