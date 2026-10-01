@@ -33,6 +33,37 @@ fail() {
   exit 1
 }
 
+usage() {
+  cat <<'EOF'
+Usage: lm-usb-writer.sh
+
+Download, authenticate, and write the latest 64-bit LMDE Cinnamon ISO to a
+removable USB disk. The script prompts for the target and requires an exact
+confirmation before erasing it.
+
+Environment:
+  LMDE_MIRROR_URL    LMDE mirror root (default: mirrors.kernel.org)
+  LMDE_DOWNLOAD_DIR  ISO download directory (default: ~/Downloads/lmde)
+
+Options:
+  -h, --help         Show this help
+EOF
+}
+
+parse_args() {
+  while (($# > 0)); do
+    case "$1" in
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      *)
+        fail "unknown option or argument: $1"
+        ;;
+    esac
+  done
+}
+
 cleanup() {
   if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
     rm -rf -- "$TEMP_DIR"
@@ -469,6 +500,8 @@ power_off_usb() {
 }
 
 main() {
+  parse_args "$@"
+
   if [[ ! -t 0 || ! -t 1 ]]; then
     fail "run this script from an interactive terminal"
   fi
