@@ -50,6 +50,16 @@ require_absolute_path() {
   esac
 }
 
+require_command() {
+  command -v "$1" >/dev/null 2>&1 ||
+    die "required command not found: $1"
+}
+
+canonicalize_path() {
+  require_command readlink
+  readlink -m -- "$1"
+}
+
 remove_path() {
   path=$1
 
@@ -106,6 +116,15 @@ require_absolute_path ARDUINO_IDE_BIN_DIR "$bin_dir"
 require_absolute_path XDG_DATA_HOME "$data_home"
 require_absolute_path XDG_CONFIG_HOME "$config_home"
 require_absolute_path XDG_CACHE_HOME "$cache_home"
+
+install_root=$(canonicalize_path "$install_root")
+bin_dir=$(canonicalize_path "$bin_dir")
+data_home=$(canonicalize_path "$data_home")
+config_home=$(canonicalize_path "$config_home")
+cache_home=$(canonicalize_path "$cache_home")
+
+[ "$install_root" != "$bin_dir" ] ||
+  die "ARDUINO_IDE_INSTALL_ROOT and ARDUINO_IDE_BIN_DIR must be different directories"
 
 stable_link="$install_root/arduino-ide"
 command_link="$bin_dir/arduino-ide"
