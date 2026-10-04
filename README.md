@@ -2,7 +2,7 @@
 
 Personal scripts and manifests for rebuilding my LMDE workstation, including
 installer media, applications, development tools, dotfiles, Cinnamon/Fcitx
-settings, and device helpers.
+settings.
 
 ## LMDE workstation restore
 
@@ -29,7 +29,6 @@ cd "$HOME/Projects/installers"
 | [`user/`](user/) | Per-user tools, developer setup, and settings backup helpers |
 | [`manifests/`](manifests/) | Package lists and managed Cinnamon/Fcitx state |
 | [`docs/`](docs/) | Restore guides, operational notes, and incident records |
-| [`devices/`](devices/) | Reserved for hardware-specific recovery helpers |
 
 ## Top-level tools
 
