@@ -17,7 +17,7 @@ readonly -a MISE_PREREQUISITE_TOOLS=(
 )
 readonly -a MISE_TOOLS=(
   "aqua:aws/aws-cli@latest"
-  "azure[uvx_args=--prerelease=allow]@latest"
+  "azure@latest"
   "azure-functions-core-tools@latest"
   "cargo:tree-sitter-cli@latest"
   "elixir@1.19.5-otp-28"
@@ -434,12 +434,6 @@ mise_tools_ready() {
       tools_ready=false
     fi
   done
-
-  if [[ "$(MISE_STATE_DIR="$mise_check_state" \
-    mise config get --file "$global_config" tools.azure.uvx_args 2>/dev/null || true)" \
-    != "--prerelease=allow" ]]; then
-    tools_ready=false
-  fi
 
   rm -rf -- "$mise_check_state"
   [[ "$tools_ready" == true ]]
