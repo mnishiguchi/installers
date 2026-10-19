@@ -29,7 +29,6 @@ readonly -a MISE_TOOLS=(
   "lazydocker@latest"
   "neovim@latest"
   "node@24"
-  "npm:@openai/codex@latest"
   "pipx:esptool@latest"
   "pipx:platformio@latest"
   "python@3.12"
