@@ -582,11 +582,22 @@ install_vscode() {
   fi
 }
 
+install_ueberzugpp() {
+  if run_script "$SCRIPT_DIR/debian/ueberzugpp-install.sh" --check; then
+    ok "ueberzugpp is installed and configured"
+  elif [[ "$CHECK" == true ]]; then
+    mark_drift "ueberzugpp configuration is incomplete"
+  else
+    run_script "$SCRIPT_DIR/debian/ueberzugpp-install.sh"
+  fi
+}
+
 section_desktop() {
   say "Native desktop applications and settings"
   install_brave
   install_1password
   install_vscode
+  install_ueberzugpp
 
   if [[ "$CHECK" == true ]]; then
     if ! run_script "$SCRIPT_DIR/lm-desktop-settings.sh" check; then

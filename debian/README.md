@@ -16,7 +16,24 @@ System-wide installers invoke `sudo` for the operations that require it.
 | Arduino IDE | `arduino-ide-install.sh` | `arduino-ide-uninstall.sh` | Per-user XDG-aware install; no `sudo` |
 | Docker Engine | `docker-install.sh` | `docker-uninstall.sh` | System install; Docker data and group removal are opt-in |
 | Nerves dependencies | `nerves-deps-install.sh` | — | Debian build packages for Nerves development |
+| Überzug++ | `ueberzugpp-install.sh` | — | Debian 13/LMDE 7 package for Yazi image previews in terminals |
 | Visual Studio Code | `vscode-install.sh` | `vscode-uninstall.sh` | Official Debian package; user-data removal is interactive |
+
+## Überzug++
+
+The installer configures the package author's [Open Build Service repository](https://software.opensuse.org/download.html?project=home%3Ajustkidding&package=ueberzugpp)
+for Debian 13 and installs `ueberzugpp`, which Yazi can use for image previews
+in Alacritty. It supports amd64 Debian 13 and LMDE 7:
+
+```bash
+./debian/ueberzugpp-install.sh
+./debian/ueberzugpp-install.sh --check
+```
+
+The signing key fingerprint is pinned, and APT grants that key access only to
+this repository through `signed-by`. Running the installer also migrates the
+globally trusted key and generically named source file created by the upstream
+copy-and-paste instructions.
 
 ## Arduino IDE
 
