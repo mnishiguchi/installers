@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # setup_github_ssh.sh
-# Set up SSH auth for GitHub on a fresh Linux Mint/LMDE machine.
+# Set up SSH auth for GitHub on a Linux or macOS machine.
 
 set -euo pipefail
 
@@ -55,7 +55,9 @@ require_cmd() {
 }
 
 detect_clipboard() {
-  if command -v wl-copy >/dev/null 2>&1; then
+  if [[ "$(uname -s)" == Darwin ]] && [[ -x /usr/bin/pbcopy ]]; then
+    CLIP_CMD=(/usr/bin/pbcopy)
+  elif command -v wl-copy >/dev/null 2>&1; then
     CLIP_CMD=(wl-copy)
   elif command -v xclip >/dev/null 2>&1; then
     CLIP_CMD=(xclip -selection clipboard)
@@ -110,6 +112,11 @@ generate_key() {
     fi
   fi
 
+  if [[ -e "$KEY_PATH" || -L "$KEY_PATH" || -e "$KEY_PATH.pub" || -L "$KEY_PATH.pub" ]]; then
+    err "Key path already exists: $KEY_PATH"
+    exit 1
+  fi
+
   ssh-keygen -t "${KEY_TYPE}" -C "${COMMENT}" -f "${KEY_PATH}"
   ok "Key generated at ${KEY_PATH}"
 }
@@ -117,7 +124,11 @@ generate_key() {
 add_key_to_agent() {
   echo_heading "Adding key to ssh-agent"
   ensure_ssh_agent
-  if ssh-add "${KEY_PATH}"; then
+  local -a add_command=(ssh-add)
+  if [[ "$(uname -s)" == Darwin ]]; then
+    add_command=(/usr/bin/ssh-add --apple-use-keychain)
+  fi
+  if "${add_command[@]}" "${KEY_PATH}"; then
     ok "Key added to agent."
   else
     err "Could not add key to ssh-agent: ${KEY_PATH}"
@@ -129,7 +140,7 @@ copy_pubkey_to_clipboard() {
   echo_heading "Copying public key to clipboard"
   detect_clipboard
   if [ "${#CLIP_CMD[@]}" -eq 0 ]; then
-    warn "No clipboard tool found (wl-copy/xclip/xsel)."
+    warn "No clipboard tool found (pbcopy/wl-copy/xclip/xsel)."
     info "Public key: ${KEY_PATH}.pub"
     info "Print it with:  cat ${KEY_PATH}.pub"
     return
@@ -149,8 +160,9 @@ open_github_keys_page() {
     info "Add your key at: https://github.com/settings/keys"
     return
   fi
-  if command -v xdg-open >/dev/null 2>&1; then
-    xdg-open "https://github.com/settings/keys" >/dev/null 2>&1 || true
+  if [[ "$(uname -s)" == Darwin ]] && /usr/bin/open "https://github.com/settings/keys"; then
+    ok "Opened GitHub SSH keys page."
+  elif command -v xdg-open >/dev/null 2>&1 && xdg-open "https://github.com/settings/keys" >/dev/null 2>&1; then
     ok "Opened GitHub SSH keys page."
   else
     info "Open this page to add your key: https://github.com/settings/keys"

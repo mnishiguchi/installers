@@ -19,6 +19,7 @@ require_command() {
 }
 
 validate_host() {
+  [[ "$(uname -s)" == Linux ]] || fail "Nerves systems builds require a Linux host; use a Linux VM or container on macOS"
   case "$(uname -m)" in
   x86_64 | aarch64 | arm64) ;;
   *) fail "Nerves systems builds require an x86_64 or aarch64 Linux host" ;;

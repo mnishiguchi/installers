@@ -17,6 +17,13 @@ Run these scripts as the desktop user, not with `sudo`.
 | `nerd-fonts-install.sh` | Install FiraCode Nerd Font for the current user |
 | `nerves-setup.sh` | Bootstrap Hex/Rebar/Nerves tools and clone `nerves_systems` |
 
+## Platform notes
+
+On macOS use `../macos-bootstrap.sh` for Homebrew packages, fonts and
+Mise-managed Neovim/Yazi. The standalone Neovim and Nerd Font installers
+are Linux-oriented. The GitHub SSH helper supports Linux and macOS;
+Nerves systems builds require Linux.
+
 ## Browser settings
 
 See [Browser settings backup](../docs/browser-settings-backup.md) for the

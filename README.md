@@ -1,8 +1,7 @@
 # Machine setup scripts
 
-Personal scripts and manifests for rebuilding my LMDE workstation, including
-installer media, applications, development tools, dotfiles, Cinnamon/Fcitx
-settings.
+Personal scripts and manifests for rebuilding my LMDE workstation and macOS
+terminal development environment. Linux desktop recovery remains LMDE-specific.
 
 ## LMDE workstation restore
 
@@ -21,19 +20,29 @@ cd "$HOME/Projects/installers"
 ./lm-bootstrap.sh --check
 ```
 
+## macOS development environment
+
+See [macOS setup](docs/macos-setup.md) for Homebrew, Alacritty, and prerequisites.
+
+```bash
+./macos-bootstrap.sh --check
+./macos-bootstrap.sh
+```
+
 ## Repository map
 
 | Path | Purpose |
 | --- | --- |
 | [`debian/`](debian/) | System software installers and uninstallers for Debian/LMDE |
 | [`user/`](user/) | Per-user tools, developer setup, and settings backup helpers |
-| [`manifests/`](manifests/) | Package lists and managed Cinnamon/Fcitx state |
+| [`manifests/`](manifests/) | APT and Homebrew package manifests, managed Cinnamon/Fcitx state |
 | [`docs/`](docs/) | Restore guides, operational notes, and incident records |
 
 ## Top-level tools
 
 | Script | Purpose |
 | --- | --- |
+| [`macos-bootstrap.sh`](macos-bootstrap.sh) | Restore or check the macOS terminal development environment |
 | [`lm-bootstrap.sh`](lm-bootstrap.sh) | Restore or check the managed workstation state by section |
 | [`lm-desktop-settings.sh`](lm-desktop-settings.sh) | Capture, restore, or compare Cinnamon and Fcitx settings |
 | [`lm-networkmanager-connections.sh`](lm-networkmanager-connections.sh) | Back up, encrypt, and restore NetworkManager profiles |

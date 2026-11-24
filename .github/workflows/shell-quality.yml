@@ -19,3 +19,16 @@ jobs:
 
       - name: Check shell scripts
         run: ./test/lint.sh
+
+  macos-bootstrap:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Test bootstrap without installing packages
+        run: /bin/bash test/macos-bootstrap.sh
+      - name: Check Brewfile syntax
+        run: ruby -c manifests/Brewfile
