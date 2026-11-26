@@ -6,6 +6,7 @@ bitwise
 cinnamon
 clamav
 copyq
+copyq-plugins
 curl
 dconf-cli
 direnv

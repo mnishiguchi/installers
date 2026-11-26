@@ -23,11 +23,20 @@ cd "$HOME/Projects/installers"
 ## macOS development environment
 
 See [macOS setup](docs/macos-setup.md) for Homebrew, Alacritty, and prerequisites.
+See [Colima Docker development](docs/colima.md) for optional container tooling.
+See [CopyQ across LMDE and macOS](docs/copyq.md) for clipboard manager setup and shortcuts.
 
 ```bash
+./macos-bootstrap.sh --only preflight
 ./macos-bootstrap.sh --check
 ./macos-bootstrap.sh
 ```
+
+Optional extras and native build dependencies are opt-in (`--only optional`,
+`--only build,runtimes`). Run `--only verify` and `dotfiles-doctor` after setup.
+The bootstrap reuses an active dotfiles checkout, preserves local changes, and
+checks Mise tool resolution in a fresh Fish login shell. Re-run `--check` to
+verify the managed state.
 
 ## Repository map
 
@@ -43,6 +52,9 @@ See [macOS setup](docs/macos-setup.md) for Homebrew, Alacritty, and prerequisite
 | Script | Purpose |
 | --- | --- |
 | [`macos-bootstrap.sh`](macos-bootstrap.sh) | Restore or check the macOS terminal development environment |
+| [`macos/colima-setup.sh`](macos/colima-setup.sh) | Optional Colima CLI setup (does not start a VM) |
+| [`bin/colima-smoke-test`](bin/colima-smoke-test) | Disposable Docker Compose integration test |
+| [`macos/copyq-install.sh`](macos/copyq-install.sh) | Verify/install the official CopyQ macOS DMG; optional, explicit nested-signature repair |
 | [`lm-bootstrap.sh`](lm-bootstrap.sh) | Restore or check the managed workstation state by section |
 | [`lm-desktop-settings.sh`](lm-desktop-settings.sh) | Capture, restore, or compare Cinnamon and Fcitx settings |
 | [`lm-networkmanager-connections.sh`](lm-networkmanager-connections.sh) | Back up, encrypt, and restore NetworkManager profiles |

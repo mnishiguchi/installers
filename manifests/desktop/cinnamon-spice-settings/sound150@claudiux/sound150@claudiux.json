@@ -489,7 +489,8 @@
         "value": [
             "banshee",
             "vlc",
-            "rhythmbox"
+            "rhythmbox",
+            "io.github.celluloid_player.Celluloid"
         ]
     },
     "runAsync": {
@@ -976,7 +977,7 @@
     "volume": {
         "type": "generic",
         "default": "50%",
-        "value": "0%"
+        "value": "100%"
     },
     "mic-level": {
         "type": "generic",

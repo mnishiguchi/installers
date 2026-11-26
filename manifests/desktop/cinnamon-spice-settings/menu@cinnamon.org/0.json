@@ -145,7 +145,7 @@
             }
         ],
         "default_category": "Linux Mint",
-        "value": "open-menu-symbolic"
+        "value": "linuxmint-logo-ring-symbolic"
     },
     "menu-icon-size": {
         "type": "spinbutton",
@@ -179,7 +179,7 @@
         "step": 1,
         "units": "px",
         "description": "Categories icon size",
-        "value": 22
+        "value": 16
     },
     "application-icon-size": {
         "type": "spinbutton",
@@ -189,7 +189,7 @@
         "step": 1,
         "units": "px",
         "description": "Applications icon size",
-        "value": 22
+        "value": 32
     },
     "show-sidebar": {
         "type": "switch",
@@ -356,12 +356,12 @@
     "popup-width": {
         "type": "generic",
         "default": 665,
-        "value": 590
+        "value": 665
     },
     "popup-height": {
         "type": "generic",
         "default": 425,
-        "value": 515
+        "value": 425
     },
     "reset-menu-size-button": {
         "type": "button",

@@ -37,9 +37,9 @@ text-scaling-factor=1.3000000000000003
 custom-list=['custom0', 'custom1', 'custom2', '__dummy__']
 
 [desktop/keybindings/custom-keybindings/custom0]
-binding=['<Super>a']
+binding=['<Alt>space', '<Super>space', '<Super>a']
 command='@HOME@/.local/bin/rofi-combi-menu'
-name='rofi-combi-menu'
+name='Rofi Launcher'
 
 [desktop/keybindings/custom-keybindings/custom1]
 binding=['Print']
@@ -60,6 +60,7 @@ terminal=['<Primary><Alt>t', '<Super>Return', '<Super>t']
 activate-window-menu=@as []
 close=['<Alt>F4', '<Super>w']
 move-to-center=['<Super>c']
+switch-input-source=['XF86Keyboard']
 
 [desktop/media-handling]
 autorun-never=false

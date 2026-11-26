@@ -19,6 +19,8 @@ jobs:
 
       - name: Check shell scripts
         run: ./test/lint.sh
+      - name: Test focused Cinnamon keybinding snapshot operations
+        run: bash test/lm-desktop-settings-keybindings-test.sh
 
   macos-bootstrap:
     strategy:
@@ -28,7 +30,16 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+      - name: Install regression test dependencies
+        run: |
+          if [ "$(uname -s)" = Darwin ]; then
+            command -v fish >/dev/null || brew install fish
+            command -v jq >/dev/null || brew install jq
+          else
+            sudo apt-get update && sudo apt-get install --yes fish jq
+          fi
       - name: Test bootstrap without installing packages
         run: /bin/bash test/macos-bootstrap.sh
       - name: Check Brewfile syntax
-        run: ruby -c manifests/Brewfile
+        run: |
+          for manifest in manifests/Brewfile*; do ruby -c "$manifest"; done

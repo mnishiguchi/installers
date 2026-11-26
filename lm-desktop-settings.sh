@@ -86,15 +86,20 @@ Usage: lm-desktop-settings.sh <command>
 Manage the Git-tracked, non-sensitive portion of this Cinnamon desktop.
 
 Commands:
-  capture   Refresh the snapshot from the current desktop.
-  restore   Back up current state, install missing applets, and apply snapshot.
-  check     Report differences without changing the machine.
-  help      Show this help.
+  capture             Refresh the complete desktop snapshot.
+  capture-keybindings Refresh only /org/cinnamon/desktop/keybindings/.
+  restore             Back up current state, install missing applets, and apply snapshot.
+  check               Report differences without changing the machine.
+  check-keybindings   Check only /org/cinnamon/desktop/keybindings/.
+  help                Show this help.
 
-The snapshot includes Cinnamon panels, themes, keybindings, gestures, keyboard
-and pointer preferences, power settings, Fcitx/Mozc selection, and Cinnamon
-applet settings. It excludes monitor layout, wallpaper paths, clipboard data,
-caches, session files, and Mozc learned-history databases.
+The full snapshot includes Cinnamon panels, themes, keybindings, gestures,
+keyboard and pointer preferences, power settings, Fcitx/Mozc selection, and
+Cinnamon applet settings. The focused keybinding commands update or compare
+only /org/cinnamon/desktop/keybindings/; they do not capture input-source
+layout settings, Fcitx, or applet preferences. The snapshot excludes monitor
+layout, wallpaper paths, clipboard data, caches, session files, and Mozc
+learned-history databases.
 EOF
 }
 
@@ -206,6 +211,185 @@ capture_cinnamon_to() {
       '
     done
   } | normalize_stream >"$destination"
+}
+
+# Capture one Cinnamon subtree in the same section naming convention as the
+# full snapshot, but without a leading separator. This lets a narrow capture
+# replace only that subtree while preserving every unrelated snapshot section.
+capture_cinnamon_path_to() {
+  local relative_path="$1"
+  local destination="$2"
+
+  require_command dconf
+  require_cinnamon_schema
+
+  dconf dump "${CINNAMON_ROOT}${relative_path}/" | awk -v prefix="$relative_path" '
+    /^\[\/\]$/ {
+      if (seen) print ""
+      print "[" prefix "]"
+      seen = 1
+      next
+    }
+    /^\[/ {
+      if (seen) print ""
+      print "[" prefix "/" substr($0, 2)
+      seen = 1
+      next
+    }
+    NF { print }
+  ' | normalize_stream >"$destination"
+}
+
+extract_dconf_path_sections() {
+  local relative_path="$1"
+  local source="$2"
+  local destination="$3"
+
+  awk -v prefix="$relative_path" '
+    function flush_pending() {
+      if (pending != "") printf "%s", pending
+      pending = ""
+    }
+    /^\[/ {
+      section = substr($0, 2, length($0) - 2)
+      next_keep = (section == prefix || index(section, prefix "/") == 1)
+      if (keep && next_keep) {
+        flush_pending()
+        print
+      } else if (!keep && next_keep) {
+        pending = ""
+        print
+      } else {
+        pending = ""
+      }
+      keep = next_keep
+      next
+    }
+    keep {
+      if ($0 ~ /^[[:space:]]*$/) {
+        pending = pending $0 "\n"
+      } else {
+        flush_pending()
+        print
+      }
+    }
+  ' "$source" >"$destination"
+}
+
+replace_dconf_path_sections() {
+  local relative_path="$1"
+  local source="$2"
+  local replacement="$3"
+  local destination="$4"
+
+  awk -v prefix="$relative_path" -v replacement_file="$replacement" '
+    function emit_replacement( i) {
+      for (i = 1; i <= replacement_count; i++) print replacement_lines[i]
+    }
+    BEGIN {
+      while ((getline line < replacement_file) > 0) {
+        replacement_lines[++replacement_count] = line
+      }
+      close(replacement_file)
+      if (replacement_count == 0) exit 2
+    }
+    /^\[/ {
+      section = substr($0, 2, length($0) - 2)
+      matches = (section == prefix || index(section, prefix "/") == 1)
+      if (matches) {
+        if (!inserted) {
+          emit_replacement()
+          inserted = 1
+        }
+        skipping = 1
+        keep = 0
+        next
+      }
+      if (skipping) {
+        print ""
+        skipping = 0
+      }
+      if (!inserted && section > prefix) {
+        emit_replacement()
+        print ""
+        inserted = 1
+      }
+      keep = 1
+      print
+      next
+    }
+    keep { print }
+    END {
+      if (!inserted) {
+        print ""
+        emit_replacement()
+      }
+    }
+  ' "$source" >"$destination"
+}
+
+capture_keybindings() {
+  local current_keybindings merged_snapshot tracked_keybindings
+
+  [[ $EUID -ne 0 ]] || fail "run as your normal user, not with sudo"
+  require_file "$CINNAMON_STATE"
+  make_temp_dir
+  current_keybindings="$TEMP_DIR/current-keybindings.dconf"
+  merged_snapshot="$TEMP_DIR/cinnamon.dconf"
+  tracked_keybindings="$TEMP_DIR/tracked-keybindings.dconf"
+
+  say "Capturing Cinnamon keyboard shortcuts"
+  capture_cinnamon_path_to "desktop/keybindings" "$current_keybindings"
+  [[ -s "$current_keybindings" ]] ||
+    fail "no Cinnamon keybinding values were returned; existing snapshot was left unchanged"
+
+  replace_dconf_path_sections \
+    "desktop/keybindings" \
+    "$CINNAMON_STATE" \
+    "$current_keybindings" \
+    "$merged_snapshot"
+  extract_dconf_path_sections \
+    "desktop/keybindings" \
+    "$merged_snapshot" \
+    "$tracked_keybindings"
+  cmp -s -- "$current_keybindings" "$tracked_keybindings" ||
+    fail "could not verify the updated keybinding snapshot; original was left unchanged"
+
+  if cmp -s -- "$CINNAMON_STATE" "$merged_snapshot"; then
+    ok "Cinnamon keybinding snapshot is already current"
+    return 0
+  fi
+
+  install -m 0644 "$merged_snapshot" "$CINNAMON_STATE"
+  ok "Cinnamon keybinding snapshot refreshed in $CINNAMON_STATE"
+  warn "only desktop/keybindings was updated; other desktop and applet snapshots were preserved"
+}
+
+check_keybindings() {
+  local current_keybindings tracked_keybindings
+
+  [[ $EUID -ne 0 ]] || fail "run as your normal user, not with sudo"
+  require_file "$CINNAMON_STATE"
+  make_temp_dir
+  current_keybindings="$TEMP_DIR/current-keybindings.dconf"
+  tracked_keybindings="$TEMP_DIR/tracked-keybindings.dconf"
+
+  say "Checking Cinnamon keyboard shortcuts"
+  capture_cinnamon_path_to "desktop/keybindings" "$current_keybindings"
+  extract_dconf_path_sections \
+    "desktop/keybindings" \
+    "$CINNAMON_STATE" \
+    "$tracked_keybindings"
+  [[ -s "$tracked_keybindings" ]] ||
+    fail "the managed snapshot has no desktop/keybindings sections"
+
+  if cmp -s -- "$tracked_keybindings" "$current_keybindings"; then
+    ok "Cinnamon keybindings match the managed snapshot"
+    return 0
+  fi
+
+  mark_drift "Cinnamon keybindings differ from the managed snapshot"
+  return 1
 }
 
 profile_value() {
@@ -554,8 +738,10 @@ main() {
 
   case "$1" in
   capture) capture ;;
+  capture-keybindings) capture_keybindings ;;
   restore) restore ;;
   check) check ;;
+  check-keybindings) check_keybindings ;;
   help | -h | --help) usage ;;
   *)
     usage >&2

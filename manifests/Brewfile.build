@@ -1,0 +1,8 @@
+# Native build dependencies; opt in before installing language runtimes.
+brew "autoconf"
+brew "automake"
+brew "cmake"
+brew "libyaml"
+brew "openssl@3"
+brew "pkgconf"
+brew "readline"

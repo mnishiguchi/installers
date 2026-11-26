@@ -323,14 +323,23 @@ section_dotfiles() {
   fi
 
   if [[ "$CHECK" == true ]]; then
-    if ! install_output="$(run_script "$DOTFILES_DIR/install.sh" --force --check 2>&1)"; then
-      printf '%s\n' "$install_output" >&2
-      mark_drift "dotfiles check failed"
-    elif grep -Eq ': (backup|link)[[:space:]]' <<<"$install_output"; then
-      printf '%s\n' "$install_output"
-      mark_drift "dotfile links differ from $DOTFILES_DIR"
+    if run_script "$DOTFILES_DIR/install.sh" --help | grep -q -- '--verify'; then
+      if ! install_output="$(run_script "$DOTFILES_DIR/install.sh" --verify 2>&1)"; then
+        printf '%s\n' "$install_output" >&2
+        mark_drift "dotfile verification failed or managed state differs"
+      else
+        ok "dotfile links match $DOTFILES_DIR"
+      fi
     else
-      ok "dotfile links match $DOTFILES_DIR"
+      if ! install_output="$(run_script "$DOTFILES_DIR/install.sh" --force --check 2>&1)"; then
+        printf '%s\n' "$install_output" >&2
+        mark_drift "dotfiles check failed"
+      elif grep -Eq ': (backup|link)[[:space:]]' <<<"$install_output"; then
+        printf '%s\n' "$install_output"
+        mark_drift "dotfile links differ from $DOTFILES_DIR"
+      else
+        ok "dotfile links match $DOTFILES_DIR"
+      fi
     fi
     return
   fi
