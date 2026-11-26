@@ -175,6 +175,12 @@ than running `mise use` repeatedly. Restore runs `mise reshim` and checks the
 requested versions again. Native runtime builds may need additional dependencies. Nerves system builds
 remain a Linux workflow; use a suitable Linux environment.
 
+The optional section also installs Yazi preview dependencies: `chafa` for
+terminal image previews, `poppler` for PDFs, `resvg` for SVGs, and `sevenzip`
+for archives. Yazi uses the shared dotfiles configuration and automatically
+selects an image adapter: Chafa on the tested macOS setup and Überzug++ on
+Linux.
+
 ## 5. Verify and troubleshoot
 
 ```bash

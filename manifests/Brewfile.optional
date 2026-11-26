@@ -1,4 +1,8 @@
 # Extra utilities, not prerequisites for a working shell.
+brew "chafa"
 brew "fastfetch"
 brew "ffmpeg"
+brew "poppler"
+brew "resvg"
+brew "sevenzip"
 brew "zk"
