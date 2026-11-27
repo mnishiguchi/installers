@@ -37,6 +37,15 @@ FiraCode Nerd Font, shared dotfiles, Mise-managed Yazi/shfmt/resvg, and the Fish
 login shell. Native build dependencies and language runtimes are an explicit
 follow-up section.
 
+Optional KDE preferences (separate from package installation):
+
+```bash
+./kde/desktop-config.sh --check
+./kde/desktop-config.sh
+```
+
+Global shortcuts and Fcitx5 profile setup are still manual. See the Fedora Asahi guide.
+
 ## macOS development environment
 
 See [macOS setup](docs/macos-setup.md) for Homebrew, Alacritty, and prerequisites.

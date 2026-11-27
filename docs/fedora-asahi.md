@@ -89,24 +89,55 @@ CopyQ is installed from Fedora's package repository. After installation:
 Package installation is verified; full clipboard-history and shortcut
 acceptance remains a manual check.
 
-### Keyboard and desktop shortcuts
+### Selected desktop preferences
 
-The following preferences were configured manually on the tested KDE system.
-They are recorded here for consistency, but are not yet exported or applied by
-the bootstrap:
+The desktop preferences are opt-in and separate from the package bootstrap.
+Run as the logged-in desktop user in a Plasma 6 Wayland session:
 
-- Caps Lock as an additional Ctrl, with Shift+Caps Lock toggling Caps Lock
-  (`caps:ctrl_shifted_capslock`).
-- `Super+Space` for the application launcher.
-- `Super+Enter` for Alacritty.
-- `Super+Shift+S` for rectangular screenshot capture.
-- `Alt+Ctrl+Arrow` for virtual-desktop navigation.
-- KDE shortcuts for showing all windows and all desktops.
-- Brave as the default browser and Alacritty as the default terminal.
+```bash
+./kde/desktop-config.sh --check
+./kde/desktop-config.sh
+```
 
-KDE shortcut export and automated restoration are deliberately deferred until
-the settings can be captured and tested independently. KRunner is KDE's native
-application launcher; Rofi is not required for this desktop.
+The script manages selected keyboard layout, virtual desktop count/rows,
+wraparound, desktop change indicator, slide animation, Breeze Dark, and the
+KWin Fcitx5 service entry. It writes individual KConfig keys only when their
+values differ. Applying the color scheme uses Plasma's color scheme utility.
+It does not copy generated desktop IDs, monitor settings, tiling layouts,
+window decoration or complete configuration files. The intended keyboard
+layout is US with Caps Lock as an additional Ctrl and Shift+Caps Lock as
+regular Caps Lock.
+
+`--check` reads persisted effective values and returns nonzero for drift.
+It does not verify live behavior. If changes were applied, log out and back
+in, run `--check` again and test the keyboard and virtual desktops. This
+script has offline regression coverage; live restore on a new KDE session
+is still pending.
+
+### Keyboard shortcuts (manual)
+
+Use System Settings > Keyboard > Shortcuts. Preserve existing default
+alternatives where possible. The observed KWin/Alacritty bindings are:
+
+| Shortcut | Action |
+| --- | --- |
+| Super+Enter | Alacritty: New |
+| Ctrl+Alt+Left/Right | Previous/next desktop |
+| Ctrl+Alt+Up | Overview |
+| Ctrl+Alt+Down | Present Windows (all desktops) |
+| Super+G | Grid View (default) |
+
+The intended KRunner shortcut is Super+Space and the intended rectangular
+capture shortcut is Super+Shift+S. Their active registrations still need
+verification: the installed KRunner defaults include Alt+Space and Alt+F2;
+Spectacle's desktop entry associates Super+Shift+S with launching Spectacle,
+not explicitly with the rectangular capture action. Configure the desired
+bindings in System Settings, resolve conflicts there, and test both keys.
+KRunner is KDE's native application launcher; Rofi is not required.
+
+Fcitx5's input-method profile remains manual (US keyboard, Mozc, Ctrl+Space
+trigger). Do not replace a live daemon's profile file. Browser and terminal
+preferences and CopyQ history/snippet setup also remain manual.
 
 ## Yazi preview support
 

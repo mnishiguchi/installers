@@ -53,3 +53,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes jq
       - name: Test Fedora Asahi bootstrap without installing packages
         run: bash test/fedora-asahi-bootstrap.sh
+      - name: Test KDE desktop configuration without a live session
+        run: bash test/kde-desktop-config.sh
