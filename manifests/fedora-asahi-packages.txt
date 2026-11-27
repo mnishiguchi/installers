@@ -17,7 +17,7 @@ fish
 fzf
 gh
 git
-gnupg
+gnupg2
 htop
 ImageMagick
 jq
