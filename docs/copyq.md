@@ -1,8 +1,9 @@
 # CopyQ on LMDE, Fedora Asahi, and macOS
 
-Use [CopyQ](https://copyq.readthedocs.io/) as the common clipboard history
-manager. Installation is owned by this `installers` repository; `dotfiles`
-only checks that the `copyq` command is available.
+Use [CopyQ](https://copyq.readthedocs.io/) on LMDE and macOS. On KDE,
+[evaluate native Klipper](kde-clipboard-evaluation.md) first; CopyQ is retained
+during evaluation. Installation is owned by this `installers` repository;
+`dotfiles` only checks that the `copyq` command is available.
 
 ## LMDE 7
 
@@ -26,8 +27,8 @@ The Fedora Asahi desktop manifest installs CopyQ from Fedora's DNF repositories:
 copyq --version
 ```
 
-Start CopyQ from the application launcher, enable its autostart option, and
-configure a KDE global shortcut to run `copyq toggle`. The bootstrap does not
+If CopyQ is needed after evaluation, start it from the application launcher,
+enable its autostart option, and configure a KDE global shortcut to run `copyq toggle`. The bootstrap does not
 write KDE global shortcuts or start the GUI. Verify clipboard history and
 recall across applications manually, and configure/test the password-ignore
 rule with dummy data before copying real credentials.

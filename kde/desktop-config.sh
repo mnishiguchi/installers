@@ -12,7 +12,7 @@ Manage selected KDE Plasma 6 Wayland desktop preferences as the desktop user.
   --help   Show this help.
 
 Default: apply only settings that differ. Log out and back in if changed.
-Global shortcuts and the Fcitx5 input-method profile remain manual.
+Global shortcuts are separate (kde/shortcuts-config.sh); Fcitx5 profile remains manual.
 USAGE
 }
 
@@ -93,7 +93,7 @@ for setting in "${settings[@]}"; do
   changed=$((changed + 1))
 done
 
-printf '\nManual: global shortcuts, Fcitx5 profile, and live session behavior.\n'
+printf '\nSeparate: global shortcuts; manual: Fcitx5 profile and live session behavior.\n'
 if "$check" && ((drift > 0)); then
   printf 'Managed KDE settings differ (%d).\n' "$drift"
   exit 1

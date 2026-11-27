@@ -4,6 +4,8 @@ Personal scripts and manifests for rebuilding my LMDE workstation, Fedora Asahi
 Remix ARM64 KDE workstation, and macOS terminal development environment. The
 Fedora bootstrap targets the tested Asahi Remix environment, not generic Fedora.
 
+See [Workstation Philosophy](docs/workstation-philosophy.md) for shared design principles.
+
 ## LMDE workstation restore
 
 See [LMDE 7 clean installation](docs/lmde-clean-install.md) for the complete
@@ -44,7 +46,15 @@ Optional KDE preferences (separate from package installation):
 ./kde/desktop-config.sh
 ```
 
-Global shortcuts and Fcitx5 profile setup are still manual. See the Fedora Asahi guide.
+Optional KDE shortcuts (live D-Bus; see prerequisites in the Fedora Asahi guide):
+
+```bash
+./kde/shortcuts-config.sh --check
+./kde/shortcuts-config.sh
+```
+
+Fcitx5 profile setup remains manual. Klipper is under evaluation; CopyQ
+installation is unchanged.
 
 ## macOS development environment
 

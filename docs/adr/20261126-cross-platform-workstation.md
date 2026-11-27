@@ -2,7 +2,7 @@
 
 Date: 2026-11-26
 
-Status: Accepted
+Status: Accepted for LMDE/macOS. See the later [workstation philosophy](../workstation-philosophy.md) for KDE-specific choices.
 
 ## Decision
 

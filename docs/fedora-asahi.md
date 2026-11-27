@@ -76,9 +76,13 @@ The tested setup uses KDE/KWin to start Fcitx5. Do not add global `GTK_IM_MODULE
 or `QT_IM_MODULE` overrides for this Wayland configuration unless a specific
 application demonstrates that it needs one.
 
-### CopyQ
+### Clipboard history: evaluate Klipper first
 
-CopyQ is installed from Fedora's package repository. After installation:
+KDE already provides Klipper. Follow the [native clipboard evaluation](kde-clipboard-evaluation.md) before deciding whether CopyQ is necessary. The current manifest still installs CopyQ; do not remove it or migrate history automatically.
+
+### CopyQ (existing optional workflow)
+
+CopyQ is installed from Fedora's package repository. If needed after evaluation:
 
 1. Start CopyQ and enable its autostart option.
 2. Configure a KDE global shortcut for the CopyQ window (for example, run
@@ -114,30 +118,44 @@ in, run `--check` again and test the keyboard and virtual desktops. This
 script has offline regression coverage; live restore on a new KDE session
 is still pending.
 
-### Keyboard shortcuts (manual)
+### Keyboard shortcuts
 
-Use System Settings > Keyboard > Shortcuts. Preserve existing default
-alternatives where possible. The observed KWin/Alacritty bindings are:
+Run as the KDE Wayland desktop user, with Python 3 and `gdbus` available:
+
+```bash
+./kde/shortcuts-config.sh --check
+./kde/shortcuts-config.sh
+```
 
 | Shortcut | Action |
 | --- | --- |
+| Super+Space | KRunner |
 | Super+Enter | Alacritty: New |
+| Super+Shift+S | Spectacle: Capture Rectangular Region |
 | Ctrl+Alt+Left/Right | Previous/next desktop |
 | Ctrl+Alt+Up | Overview |
 | Ctrl+Alt+Down | Present Windows (all desktops) |
-| Super+G | Grid View (default) |
 
-The intended KRunner shortcut is Super+Space and the intended rectangular
-capture shortcut is Super+Shift+S. Their active registrations still need
-verification: the installed KRunner defaults include Alt+Space and Alt+F2;
-Spectacle's desktop entry associates Super+Shift+S with launching Spectacle,
-not explicitly with the rectangular capture action. Configure the desired
-bindings in System Settings, resolve conflicts there, and test both keys.
-KRunner is KDE's native application launcher; Rofi is not required.
+The script discovers existing registered action IDs and key sequences via
+KGlobalAccel, preserves alternative shortcuts and refuses unexpected conflicts
+before writing. The only allowed transfer is Super+Shift+S from generic
+Spectacle launch to rectangular capture. It verifies each change by readback.
+If an action is not registered (e.g. Alacritty on a fresh desktop), add it in
+System Settings > Keyboard > Shortcuts and rerun. It does not register unknown
+actions or edit `kglobalshortcutsrc`. No sudo or session restart is required
+for the tested live calls. The script is not transactional: if a write fails,
+review the live state with `--check`, resolve conflicts in System Settings and
+rerun. In particular the screenshot shortcut may be unassigned after a failed
+transfer. Do not run concurrent shortcut editors during restore.
+
+The manual D-Bus experiment confirmed all seven owners and preserved alternative
+bindings. The automation has offline tests; verify physical keys and persistence
+after logout/login on real KDE. KRunner and Spectacle are native; Rofi is not
+required.
 
 Fcitx5's input-method profile remains manual (US keyboard, Mozc, Ctrl+Space
-trigger). Do not replace a live daemon's profile file. Browser and terminal
-preferences and CopyQ history/snippet setup also remain manual.
+trigger). Do not replace a live daemon's profile file. Browser preferences and
+clipboard/snippet integration remain manual.
 
 ## Yazi preview support
 
@@ -177,7 +195,7 @@ Mesa development packages were installed; GTK emitted non-fatal state notices.
 Still requiring manual acceptance: CopyQ history/shortcut behavior, Japanese
 input in Brave and Neovim, Docker/Compose with PostgreSQL, Nerves firmware and
 fwup, ESP-IDF/OpenOCD/AtomVM, suspend/resume, audio/microphone/camera, USB,
-external displays, battery behavior, and full KDE shortcut export. The initial
+external displays, battery behavior, and physical shortcut/persistence acceptance. The initial
 Mason `clangd` installation errors stopped after the Linux ARM64 configuration
 was updated; no new Mason error was reported.
 
