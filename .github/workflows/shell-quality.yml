@@ -43,3 +43,13 @@ jobs:
       - name: Check Brewfile syntax
         run: |
           for manifest in manifests/Brewfile*; do ruby -c "$manifest"; done
+
+  fedora-asahi-bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install regression test dependency
+        run: sudo apt-get update && sudo apt-get install --yes jq
+      - name: Test Fedora Asahi bootstrap without installing packages
+        run: bash test/fedora-asahi-bootstrap.sh

@@ -1,7 +1,8 @@
 # Machine setup scripts
 
-Personal scripts and manifests for rebuilding my LMDE workstation and macOS
-terminal development environment. Linux desktop recovery remains LMDE-specific.
+Personal scripts and manifests for rebuilding my LMDE workstation, Fedora Asahi
+Remix ARM64 KDE workstation, and macOS terminal development environment. The
+Fedora bootstrap targets the tested Asahi Remix environment, not generic Fedora.
 
 ## LMDE workstation restore
 
@@ -20,11 +21,27 @@ cd "$HOME/Projects/installers"
 ./lm-bootstrap.sh --check
 ```
 
+## Fedora Asahi Remix 45 (ARM64 / KDE)
+
+See [Fedora Asahi workstation](docs/fedora-asahi.md) for the tested target,
+package ownership, KDE Wayland setup, and remaining acceptance checks.
+
+```bash
+./fedora-asahi-bootstrap.sh --check
+./fedora-asahi-bootstrap.sh
+./fedora-asahi-bootstrap.sh --only build,runtimes
+```
+
+The default restore manages native DNF packages, KDE input/clipboard packages,
+FiraCode Nerd Font, shared dotfiles, Mise-managed Yazi/shfmt/resvg, and the Fish
+login shell. Native build dependencies and language runtimes are an explicit
+follow-up section.
+
 ## macOS development environment
 
 See [macOS setup](docs/macos-setup.md) for Homebrew, Alacritty, and prerequisites.
 See [Colima Docker development](docs/colima.md) for optional container tooling.
-See [CopyQ across LMDE and macOS](docs/copyq.md) for clipboard manager setup and shortcuts.
+See [CopyQ across LMDE, Fedora Asahi, and macOS](docs/copyq.md) for clipboard manager setup and shortcuts.
 
 ```bash
 ./macos-bootstrap.sh --only preflight
@@ -44,13 +61,14 @@ verify the managed state.
 | --- | --- |
 | [`debian/`](debian/) | System software installers and uninstallers for Debian/LMDE |
 | [`user/`](user/) | Per-user tools, developer setup, and settings backup helpers |
-| [`manifests/`](manifests/) | APT and Homebrew package manifests, managed Cinnamon/Fcitx state |
+| [`manifests/`](manifests/) | APT, Homebrew, and Fedora Asahi package manifests; managed Cinnamon/Fcitx state |
 | [`docs/`](docs/) | Restore guides, operational notes, and incident records |
 
 ## Top-level tools
 
 | Script | Purpose |
 | --- | --- |
+| [`fedora-asahi-bootstrap.sh`](fedora-asahi-bootstrap.sh) | Restore or check the tested Fedora Asahi Remix ARM64 KDE workstation |
 | [`macos-bootstrap.sh`](macos-bootstrap.sh) | Restore or check the macOS terminal development environment |
 | [`macos/colima-setup.sh`](macos/colima-setup.sh) | Optional Colima CLI setup (does not start a VM) |
 | [`bin/colima-smoke-test`](bin/colima-smoke-test) | Disposable Docker Compose integration test |

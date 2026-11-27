@@ -1,0 +1,8 @@
+# KDE Wayland Japanese input and clipboard integration
+copyq
+fcitx5
+fcitx5-configtool
+fcitx5-gtk
+fcitx5-mozc
+fcitx5-qt
+kcm-fcitx5

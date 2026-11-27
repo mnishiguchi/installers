@@ -19,10 +19,12 @@ Run these scripts as the desktop user, not with `sudo`.
 
 ## Platform notes
 
-On macOS use `../macos-bootstrap.sh` for Homebrew packages, fonts and
-Mise-managed Neovim/Yazi. The standalone Neovim and Nerd Font installers
-are Linux-oriented. The GitHub SSH helper supports Linux and macOS;
-Nerves systems builds require Linux.
+On Fedora Asahi Remix 45 / ARM64 use `../fedora-asahi-bootstrap.sh` for DNF
+packages, fonts, Mise tools/runtimes, and dotfiles. On macOS use
+`../macos-bootstrap.sh` for Homebrew packages, fonts and Mise-managed
+Neovim/Yazi. The standalone Neovim and Nerd Font installers are Linux-oriented.
+The GitHub SSH helper supports Linux and macOS; Nerves system builds require
+Linux.
 
 ## Browser settings
 

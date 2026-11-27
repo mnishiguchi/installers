@@ -1,4 +1,4 @@
-# CopyQ on LMDE and macOS
+# CopyQ on LMDE, Fedora Asahi, and macOS
 
 Use [CopyQ](https://copyq.readthedocs.io/) as the common clipboard history
 manager. Installation is owned by this `installers` repository; `dotfiles`
@@ -16,6 +16,21 @@ sudo apt install copyq copyq-plugins
 The Cinnamon settings snapshot already assigns **Super+V** to `copyq show`.
 Restore the desktop settings with `lm-desktop-settings.sh` if that binding is
 missing. The normal `lm-bootstrap.sh` APT section installs the managed packages.
+
+## Fedora Asahi Remix 45 KDE
+
+The Fedora Asahi desktop manifest installs CopyQ from Fedora's DNF repositories:
+
+```bash
+./fedora-asahi-bootstrap.sh --only desktop
+copyq --version
+```
+
+Start CopyQ from the application launcher, enable its autostart option, and
+configure a KDE global shortcut to run `copyq toggle`. The bootstrap does not
+write KDE global shortcuts or start the GUI. Verify clipboard history and
+recall across applications manually, and configure/test the password-ignore
+rule with dummy data before copying real credentials.
 
 ## macOS 13 and newer
 
@@ -100,12 +115,12 @@ copyq --version
 
 ## Shortcuts
 
-| Action | LMDE 7 | macOS |
-| --- | --- | --- |
-| Show clipboard history | Super+V (managed Cinnamon binding) | Command+Shift+V (configure in CopyQ) |
-| Search | Type in the history window | Type in the history window |
-| Select/paste | Enter | Enter |
-| Close/hide | Esc | Esc |
+| Action | LMDE 7 | Fedora Asahi KDE | macOS |
+| --- | --- | --- | --- |
+| Show clipboard history | Super+V (managed Cinnamon binding) | Configure a KDE global shortcut for `copyq toggle` | Command+Shift+V (configure in CopyQ) |
+| Search | Type in the history window | Type in the history window | Type in the history window |
+| Select/paste | Enter | Enter | Enter |
+| Close/hide | Esc | Esc | Esc |
 
 To configure the macOS shortcut:
 
@@ -115,7 +130,8 @@ To configure the macOS shortcut:
 4. Set its Global Shortcut to **Command+Shift+V** and save.
 
 This GUI shortcut is deliberately not written into macOS preferences by the
-bootstrap. Keep the Linux Super+V binding unchanged.
+bootstrap. Keep the LMDE Super+V binding unchanged. Fedora Asahi KDE shortcuts
+remain a manual setting.
 
 ## Privacy and data
 
@@ -141,12 +157,12 @@ Default paths in CopyQ 17.0.0:
 
 | Platform | Configuration | Data | State |
 | --- | --- | --- | --- |
-| LMDE / Linux | `~/.config/copyq` | `~/.local/share/copyq` | `~/.local/state/copyq` |
+| LMDE / Fedora Asahi Linux | `~/.config/copyq` | `~/.local/share/copyq` | `~/.local/state/copyq` |
 | macOS | `~/Library/Preferences/copyq` | `~/Library/Application Support/copyq` | `~/Library/Application Support/copyq` |
 
 Use `copyq info config`, `copyq info data`, and `copyq info state` to inspect
-the actual paths. Package versions may differ between LMDE's APT repository
-and the pinned macOS DMG. Keep each computer's history local; do not copy the
+the actual paths. Package versions may differ between Linux distribution repositories and the
+pinned macOS DMG. Keep each computer's history local; do not copy the
 live database between platforms.
 
 ## Diagnostics
