@@ -11,6 +11,7 @@ Personal guides for installing, restoring, and maintaining the workstation.
 - [LMDE 7 clean installation](lmde-clean-install.md)
 - [NetworkManager connection backup and restore](networkmanager-connections.md)
 - [Browser extensions](browser-extensions.md)
+- [Minimal Brave settings](browser-settings.md)
 - [Browser settings backup](browser-settings-backup.md)
 
 Design decisions are kept in [`adr/`](adr/); dated implementation and

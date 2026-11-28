@@ -4,6 +4,7 @@ Declarative package, application, and tool lists consumed by the workstation
 bootstrap scripts.
 
 - `browser-extensions.json`: shared browser extension inventory (Chromium IDs and Firefox add-on slugs).
+- `brave-settings.json`: six native Brave policies for optional services.
 - `apt-packages.txt`: LMDE system packages.
 - `flatpak-apps.txt`: LMDE desktop applications.
 - `Brewfile`: macOS CLI tools, native build dependencies and terminal font.

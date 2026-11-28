@@ -67,3 +67,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes jq
       - name: Test browser policies without installing extensions
         run: bash test/browser-extensions.sh
+      - name: Test Brave settings without changing system policies
+        run: bash test/browser-settings.sh

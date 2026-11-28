@@ -2,7 +2,9 @@
 
 Install a small shared extension baseline without copying profiles or requiring
 browser synchronization. This is an opt-in helper for native Linux packages
-on LMDE and Fedora Asahi. Real-browser acceptance is still pending.
+on LMDE and Fedora Asahi. Brave extension installation on Fedora Asahi was
+reported working; other native browser and platform combinations remain
+unverified.
 
 The source of truth is [`manifests/browser-extensions.json`](../manifests/browser-extensions.json):
 

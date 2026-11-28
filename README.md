@@ -88,6 +88,20 @@ browsers. This is opt-in; it is not part of the platform bootstraps.
 See [Browser extensions](docs/browser-extensions.md) for other browsers,
 policy conflicts, and manual acceptance checks.
 
+## Optional Brave settings
+
+Disable optional Brave services with native policies, independently of the
+extension baseline. Dark mode and keyboard shortcuts remain unmanaged.
+
+```bash
+./user/browser-settings.sh --dry-run
+./user/browser-settings.sh
+./user/browser-settings.sh --check
+```
+
+See [Minimal Brave settings](docs/browser-settings.md) for the policy scope,
+verification and rollback.
+
 ## Repository map
 
 | Path | Purpose |

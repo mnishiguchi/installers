@@ -20,3 +20,8 @@ preservation and refusal of conflicts or symlinks. It does not launch a browser
 or contact an extension store. Verify real browser acceptance first on Fedora
 Asahi Brave, then LMDE and other native browser packages. Confirm 1Password
 integration and Firefox/ESR extension compatibility before claiming support.
+
+Follow-up: Brave extension installation on Fedora Asahi was reported working.
+Other browser/platform combinations and extension integration remain pending.
+The separate [Brave settings baseline](20261128-brave-settings.md) records the
+optional service policy experiment.

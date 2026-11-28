@@ -10,6 +10,7 @@ Run these scripts as the desktop user, not with `sudo`.
 | Script | Purpose |
 | --- | --- |
 | `browser-extensions.sh` | Install baseline extensions through native Linux browser policies (uses sudo for writes) |
+| `browser-settings.sh` | Configure optional Brave services through native Linux policies (uses sudo for writes) |
 | `browser-settings-backup.sh` | Back up portable Chrome and Brave settings and bookmarks |
 | `diff-so-fancy-install.sh` / `diff-so-fancy-uninstall.sh` | Manage a per-user diff-so-fancy checkout and command link |
 | `git-config-generate.sh` | Interactively create common global Git settings |
@@ -30,5 +31,6 @@ Linux.
 ## Browser settings
 
 See [Browser extensions](../docs/browser-extensions.md) for the opt-in extension
-installer. See [Browser settings backup](../docs/browser-settings-backup.md) for the
+installer. See [Minimal Brave settings](../docs/browser-settings.md) for the
+optional Brave service policies. See [Browser settings backup](../docs/browser-settings-backup.md) for the
 settings-only Google Chrome and Brave backup helper.
