@@ -57,6 +57,8 @@ jobs:
         run: bash test/kde-desktop-config.sh
       - name: Test KDE shortcuts without a live session
         run: bash test/kde-shortcuts-config.sh
+      - name: Test KDE Compact Stats without a live session
+        run: bash test/kde-panel-stats.sh
 
   browser-extensions:
     runs-on: ubuntu-latest

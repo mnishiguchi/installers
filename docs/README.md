@@ -7,6 +7,7 @@ Personal guides for installing, restoring, and maintaining the workstation.
 - [macOS development environment](macos-setup.md)
 - [Colima Docker development](colima.md)
 - [CopyQ on LMDE, Fedora Asahi, and macOS](copyq.md)
+- [KDE Compact Stats panel monitor](kde-panel-stats.md)
 - [KDE clipboard and snippets evaluation](kde-clipboard-evaluation.md)
 - [LMDE 7 clean installation](lmde-clean-install.md)
 - [NetworkManager connection backup and restore](networkmanager-connections.md)

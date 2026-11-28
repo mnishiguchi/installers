@@ -63,6 +63,11 @@ this machine before they are added to a managed restore.
 
 ## KDE Wayland setup
 
+### Compact Stats panel monitor (optional)
+
+See [Compact Stats](kde-panel-stats.md) for the compact CPU, per-core, RAM
+and network panel layout, and the standalone installer and verification.
+
 ### Japanese input
 
 Installations include Fcitx5 and Mozc. In KDE System Settings:

@@ -53,6 +53,14 @@ Optional KDE shortcuts (live D-Bus; see prerequisites in the Fedora Asahi guide)
 ./kde/shortcuts-config.sh
 ```
 
+Optional [Compact Stats panel monitor](docs/kde-panel-stats.md):
+
+```bash
+./kde/panel-stats.sh --dry-run
+./kde/panel-stats.sh
+./kde/panel-stats.sh --check
+```
+
 Fcitx5 profile setup remains manual. Klipper is under evaluation; CopyQ
 installation is unchanged.
 

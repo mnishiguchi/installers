@@ -1,0 +1,11 @@
+{
+  "KPackageStructure": "KSysguard/SensorFace",
+  "KPlugin": {
+    "Id": "org.example.installers.compactstats.cores",
+    "Name": "Compact Stats",
+    "Description": "Compact horizontal system statistics",
+    "Icon": "office-chart-line",
+    "Version": "0.2.0"
+  },
+  "X-KDE-ParentApp": "org.kde.plasmashell"
+}
