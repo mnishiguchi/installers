@@ -40,6 +40,8 @@ Use the most appropriate implementation for each platform while maintaining fami
 
 Existing LMDE and macOS preferences remain unchanged unless improvements are deliberately planned and validated separately.
 
+On Fedora Asahi, prefer official Slack and Discord web apps in the existing native Brave browser over emulation or unofficial clients, provided they meet the communication workflow. Installation and launcher integration have been verified; calls, notifications and screen sharing are still under evaluation. See [Fedora Asahi desktop applications](fedora-asahi-applications.md). Account authentication and web app registration remain documented manual steps.
+
 ## Fedora Asahi / KDE integration
 
 KDE Plasma provides many useful desktop features out of the box.

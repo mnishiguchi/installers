@@ -4,6 +4,7 @@ Personal guides for installing, restoring, and maintaining the workstation.
 
 - [Workstation Philosophy](workstation-philosophy.md)
 - [Fedora Asahi Remix 45 workstation](fedora-asahi.md)
+- [Fedora Asahi desktop applications](fedora-asahi-applications.md)
 - [macOS development environment](macos-setup.md)
 - [Colima Docker development](colima.md)
 - [CopyQ on LMDE, Fedora Asahi, and macOS](copyq.md)

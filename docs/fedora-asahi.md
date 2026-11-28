@@ -162,6 +162,14 @@ Fcitx5's input-method profile remains manual (US keyboard, Mozc, Ctrl+Space
 trigger). Do not replace a live daemon's profile file. Browser preferences and
 clipboard/snippet integration remain manual.
 
+## Desktop applications
+
+Follow the [manual desktop application guide](fedora-asahi-applications.md)
+for Brave, Slack, Discord and 1Password. Slack and Discord were installed
+as Brave web apps and launched through KRunner. Slack dark mode was verified.
+Call, notification and screen-sharing acceptance remains pending. Account
+authentication and app registration are outside the managed bootstrap.
+
 ## Yazi preview support
 
 The tested Yazi configuration uses the Chafa image adapter and the following
