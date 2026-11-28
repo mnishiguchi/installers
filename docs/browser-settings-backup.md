@@ -1,5 +1,8 @@
 # Browser settings backup
 
+For fresh extension installation without copying profile data, see
+[Browser extensions](browser-extensions.md).
+
 Use `user/browser-settings-backup.sh` to back up portable Google Chrome and
 Brave settings without copying complete browser profiles. Close both browsers
 before running it. Use the browser's **Exit** command if background processes

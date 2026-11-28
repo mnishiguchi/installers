@@ -74,6 +74,20 @@ The bootstrap reuses an active dotfiles checkout, preserves local changes, and
 checks Mise tool resolution in a fresh Fish login shell. Re-run `--check` to
 verify the managed state.
 
+## Optional browser extensions
+
+Install the shared 1Password and Save Pinned Tabs baseline in native Linux
+browsers. This is opt-in; it is not part of the platform bootstraps.
+
+```bash
+./user/browser-extensions.sh --browser brave --dry-run
+./user/browser-extensions.sh --browser brave
+./user/browser-extensions.sh --browser brave --check
+```
+
+See [Browser extensions](docs/browser-extensions.md) for other browsers,
+policy conflicts, and manual acceptance checks.
+
 ## Repository map
 
 | Path | Purpose |

@@ -57,3 +57,13 @@ jobs:
         run: bash test/kde-desktop-config.sh
       - name: Test KDE shortcuts without a live session
         run: bash test/kde-shortcuts-config.sh
+
+  browser-extensions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install regression test dependency
+        run: sudo apt-get update && sudo apt-get install --yes jq
+      - name: Test browser policies without installing extensions
+        run: bash test/browser-extensions.sh

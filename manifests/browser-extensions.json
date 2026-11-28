@@ -1,0 +1,14 @@
+{
+  "extensions": [
+    {
+      "name": "1Password",
+      "chromium_id": "aeblfdkhhhdcdjpifhhbdiojplfjncoa",
+      "firefox_slug": "1password-x-password-manager"
+    },
+    {
+      "name": "Save Pinned Tabs",
+      "chromium_id": "anmidgajdonkgmmilbccfefkfieajakd",
+      "firefox_slug": "save-pinned-tabs"
+    }
+  ]
+}

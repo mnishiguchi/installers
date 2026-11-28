@@ -10,6 +10,7 @@ Personal guides for installing, restoring, and maintaining the workstation.
 - [KDE clipboard and snippets evaluation](kde-clipboard-evaluation.md)
 - [LMDE 7 clean installation](lmde-clean-install.md)
 - [NetworkManager connection backup and restore](networkmanager-connections.md)
+- [Browser extensions](browser-extensions.md)
 - [Browser settings backup](browser-settings-backup.md)
 
 Design decisions are kept in [`adr/`](adr/); dated implementation and
