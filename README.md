@@ -64,7 +64,7 @@ Optional [Compact Stats panel monitor](docs/kde-panel-stats.md):
 Fcitx5 profile setup remains manual. Klipper is under evaluation; CopyQ
 installation is unchanged.
 
-For Slack, Discord and 1Password, see the manual
+For Slack, Discord and the optional standalone ARM64 1Password installer, see the
 [Fedora Asahi desktop applications](docs/fedora-asahi-applications.md) guide.
 
 ## macOS development environment

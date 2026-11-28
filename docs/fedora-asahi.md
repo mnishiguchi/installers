@@ -164,7 +164,7 @@ clipboard/snippet integration remain manual.
 
 ## Desktop applications
 
-Follow the [manual desktop application guide](fedora-asahi-applications.md)
+Follow the [desktop application guide](fedora-asahi-applications.md)
 for Brave, Slack, Discord and 1Password. Slack and Discord were installed
 as Brave web apps and launched through KRunner. Slack dark mode was verified.
 Call, notification and screen-sharing acceptance remains pending. Account

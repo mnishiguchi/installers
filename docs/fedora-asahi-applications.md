@@ -8,8 +8,8 @@ Follow the [workstation restore guide](fedora-asahi.md) first.
 
 | Application | Approach on Fedora Asahi | Verification |
 | --- | --- | --- |
-| Brave | Native ARM64 browser | Running; version 158.1.100.59 observed |
-| 1Password | Installed manually | Installation reported successful; package source and restore procedure not yet recorded |
+| Brave | Official native ARM64 RPM | Repository `brave-browser`; version 158.1.100.59 observed |
+| 1Password | Official-style native ARM64 standalone archive | 8.12.48 runs; local layout verified; original download signature not independently verified |
 | Slack | Official web application installed through Brave | Sign-in, standalone window, KRunner and dark mode verified |
 | Discord | Official web application installed through Brave | Installation and KRunner launch reported successful |
 
@@ -20,8 +20,9 @@ and unofficial clients. Do not assume an ARM64 binary also supports the Asahi
 justifies them. For work accounts, follow the organization's application and
 browser policies.
 
-These are manual user-level steps, not part of the package bootstrap or its
-`--check` contract. Existing LMDE and macOS workflows are unchanged.
+Browser applications are manual user-level steps; the optional 1Password
+installer is separate from the package bootstrap and its `--check` contract.
+Existing LMDE and macOS workflows are unchanged.
 
 ## Browser prerequisites
 
@@ -97,20 +98,51 @@ support and account policies before choosing alternatives.
 
 ## 1Password
 
-Installation was reported successful on Fedora Asahi. Record the exact
-installation source before adding a reproducible installer; do not reuse the
-Debian-specific installer on Fedora. The following queries can help identify
-an RPM installation and its source without accessing vault contents:
+The tested workstation runs 1Password 8.12.48 as a native aarch64 ELF binary,
+with `/usr/bin/1password` pointing to `/opt/1Password/1password` and the vendor
+`after-install.sh` present. It is not installed through RPM or Flatpak. This
+matches the standalone layout in the [official Linux setup guide](https://support.1password.com/install-linux/).
+The original archive and its signature were not retained for independent verification.
+
+Use the optional Fedora ARM64 installer from the repository root:
 
 ```bash
-rpm -q 1password brave-browser
-# If installed through DNF, inspect the corresponding package metadata:
-dnf info --installed 1password brave-browser
+./fedora/1password.sh --check   # Local layout and version only
+./fedora/1password.sh           # Install if absent; no-op if healthy
+./fedora/1password.sh --update  # Explicitly fetch and install a newer stable release
 ```
 
-Use the [official Linux setup guide](https://support.1password.com/install-linux/)
-when restoring. Sign in manually; browser extension integration and vault
-recovery have not been independently verified in this experiment.
+Run as your regular user. Quit 1Password completely (including its tray
+process) before installing or updating; do not interrupt the operation.
+The script requires `curl`, `gpg` (Fedora `gnupg2`), `tar`, `file`, `rpm`,
+`sudo`, `procps-ng` and standard GNU utilities. It does not install packages
+or change the system package manifest. The check does not contact the network
+or authenticate the already-installed binary; it checks the expected layout,
+architecture, ownership of key files and the locally reported version.
+
+The install/update path fetches the stable ARM64 archive, its detached signature
+and the signing key from 1Password. It pins the published primary fingerprint
+`3FEF9748469ADBE15DA7CA80AC2D62742012EA22` in an isolated GPG home. Signature
+failure, unexpected archive layout or architecture, an existing incompatible
+installation, or a requested downgrade stops the operation. A same-version
+update downloads and verifies the archive but does not replace the application.
+If the vendor changes the archive naming scheme or signing key, review the
+upstream documentation before changing the checks; never bypass them.
+
+The script stages the application under `/opt`, retains the old binary tree
+until the vendor hook and local checks succeed, then removes the staging tree.
+If the hook or final version check fails, it attempts to restore the old tree
+and retains the staging directory for inspection. System integration changes
+made by the vendor hook are not transactional; inspect and repair them manually
+if necessary. Do not run concurrent installers or updates. No user vault or
+browser configuration is intentionally modified by the wrapper. Keep access to
+your account recovery information before an update.
+
+The standalone app is not updated by DNF. Consult the [stable release notes](https://releases.1password.com/linux/stable/)
+and the [vendor update guide](https://support.1password.com/update-1password/)
+for maintenance. Sign in manually and test browser extension integration after
+installation. The script has offline regression coverage; real ARM64 installation,
+upgrade, and browser integration are still to be tested.
 
 ## Restore and security boundaries
 
